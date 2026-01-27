@@ -8,6 +8,7 @@ Must be run in a unique terminal
 ## Installing the needed python packages
 
 ### `pip install -r .\backend\requirements.txt`
+### also must do `pip install 'fastapi[standard]'`
 
 
 ## Running the backend
