@@ -9,8 +9,32 @@ Must be run in a unique terminal
 
 ### `pip install -r .\backend\requirements.txt` 
 
-## for linux users, i have created a venv, which can be used to download the backend
+
+
+## Running the backend
+
+Must be run in a unique terminal
+
+### `fastapi dev .\backend\server.py`
+
+
+
+
+
+###linux 
+Must be run in a unique terminal
+
+### `npm start --prefix ./frontend/`
+
+
+## start a venv 
+### `python3 -m venv venv`
+
+## open the venv
 ### `source venv/bin/activate`
+
+## Installing the needed python packages
+### `pip install -r ./backend/requirements.txt` 
 
 
 
@@ -18,4 +42,5 @@ Must be run in a unique terminal
 
 Must be run in a unique terminal
 
-### `fastap dev .\backend\server.py`
+### `fastapi dev ./backend/server.py`
+
