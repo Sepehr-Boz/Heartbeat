@@ -7,7 +7,11 @@ Must be run in a unique terminal
   
 ## Installing the needed python packages
 
-### `pip install -r .\backend\requirements.txt`
+### `pip install -r .\backend\requirements.txt` 
+
+## for linux users, i have created a venv, which can be used to download the backend
+### `source venv/bin/activate`
+
 
 
 ## Running the backend
