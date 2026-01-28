@@ -1,15 +1,16 @@
 import { Component } from "react";
+import "./Profile.css";
 
 
 
 class ProfilePage extends Component{
     render() {
         // these are just placeholders to be changed depending on users profile pic and name
-        const username = "Test";
+        const username = "User Name";
         const profileImage = "Image.jpg";
 
         return (
-        <div className="Profile">
+        <div className="profile">
             <div className="profile-header">
                 <img src={profileImage} alt="Profile" className="profile-pic"/>
                 <h2 className="username">{username}</h2>
