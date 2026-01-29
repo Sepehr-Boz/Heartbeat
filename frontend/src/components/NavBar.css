@@ -5,12 +5,14 @@
     flex-direction: row;
     width: 100%;
     height: fit-content;
-    padding-top: 2.5%;
-    padding-bottom: 2.5%;
+    padding-top: 1vh;
+    padding-bottom: 1vh;
     align-content: center;
     justify-content:space-around;
     position: absolute;
     bottom: 0px;
+
+    z-index: 10;
 }
 
 
