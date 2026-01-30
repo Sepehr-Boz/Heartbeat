@@ -1,0 +1,34 @@
+.qrpage{
+    width: 100vw;
+    height: 100vh;
+
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr 5fr 1fr;
+}
+
+#qrpage-components{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-items: center;
+    align-content: center;
+    justify-content: center;
+
+    grid-row: 2;
+}
+
+#qrpage-name{
+    font-weight: 700;
+    font-size: 2.5vh;
+}
+
+#qrpage-code{
+    font-weight: 700;
+    font-size: 2.5vh;
+}
+
+#qr{
+    width: auto;
+    height: auto;
+}
