@@ -26,7 +26,7 @@
     height: 95%;
 
     filter: brightness(0) saturate(100%) invert(94%) sepia(68%) saturate(2851%) hue-rotate(154deg) brightness(109%) contrast(107%);
-    background-image: url("./Heart.svg");
+    background-image: url("../Heart.svg");
     background-position: center;
     background-repeat: space;
     background-size: 64px;
