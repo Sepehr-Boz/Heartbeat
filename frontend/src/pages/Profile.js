@@ -1,13 +1,9 @@
 import { Component } from "react";
-<<<<<<< HEAD
 import "./css/Profile.css";
-=======
-import "./Profile.css";
 import { useNavigate } from "react-router-dom";
 
 import NavBar from "../components/NavBar";
 import TitleBar from "../components/TitleBar";
->>>>>>> 3edd0683afca645dd0fbbd3fb259cff03c6211bd
 
 
 function ProfilePage() {
