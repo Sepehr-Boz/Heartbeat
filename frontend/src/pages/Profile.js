@@ -1,5 +1,5 @@
 import { Component } from "react";
-import "./Profile.css";
+import "./css/Profile.css";
 
 
 

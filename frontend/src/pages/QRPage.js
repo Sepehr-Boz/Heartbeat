@@ -3,7 +3,7 @@ import NavBar from "../components/NavBar";
 import TitleBar from "../components/TitleBar";
 
 import defaultQRCode from "./PlaceholderQRCode.png";
-import "./QRPage.css";
+import "./css/QRPage.css";
 
 
 function QRPage(){

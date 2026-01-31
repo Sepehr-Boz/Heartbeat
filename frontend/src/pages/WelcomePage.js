@@ -1,4 +1,4 @@
-import "./WelcomePage.css";
+import "./css/WelcomePage.css";
 import { useNavigate } from "react-router-dom";
 
 import NavBar from "../components/NavBar";
@@ -26,4 +26,4 @@ function WelcomePage(){
   );
 }
 
-export default WelcomePage;
+export default WelcomePage; 
