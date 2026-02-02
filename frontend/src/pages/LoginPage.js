@@ -25,13 +25,12 @@ function LoginPage() {
 
 
   return (
-    <div className="background-container">
     <div className="App ">
       {header()}
       <main >
         {SignInDetails({ email, setEmail, password, setPassword,message, handleSubmit })}
       </main>
-    </div>
+      
     </div>
   );
 }
@@ -74,7 +73,7 @@ function SignInDetails({ email, setEmail, password, setPassword, message ,handle
         required
       />
 
-      <button type="submit">Log In</button>
+      <button type="button">Log In</button>
     </form>
     {message && <p>{message}</p>}
 
@@ -90,9 +89,11 @@ function SignInDetails({ email, setEmail, password, setPassword, message ,handle
 
 function SignUp() {
   return (
+
+
     <div className="login-form">
 
-      <h4>Don't have an account?</h4>
+      <h3>Don't have an account?</h3>
       <a href="/Signup">
         <button type="button">Sign Up</button>
       </a>
