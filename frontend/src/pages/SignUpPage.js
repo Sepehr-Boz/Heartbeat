@@ -1,5 +1,7 @@
 import "./css/SignUpPage.css";
 import { useState } from "react";
+import { auth } from "../firebase/firebase";
+import { createUserWithEmailAndPassword } from "firebase/auth";
 
 function SignUpPage() {
 
@@ -10,9 +12,9 @@ function SignUpPage() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [message, setMessage] = useState("");
-  const [users, setUsers] = useState([]);
+  //const [users, setUsers] = useState([]);
   const [signedUpUser, setSignedUpUser] = useState(null);
-
+  const [loading, setLoading] = useState(false);
 
   // information which i will add for later use
   // const [Username, setUsername] = useState("");
@@ -25,31 +27,54 @@ function SignUpPage() {
 
 
   const passwordsMatch = password === confirmPassword;
+  const isPasswordValid = password.length >= 6;
 
 
 
 
-
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
+    setMessage("");
 
     if (!passwordsMatch) {
       setMessage("Passwords do not match.");
+      setLoading(false);
       return;
     }
 
-    if (users.find((u) => u.email === email)) {
-      setMessage("This email is already registered.");
+    if (!isPasswordValid) {
+      setMessage("Password must be at least 6 characters long.");
+      setLoading(false);
       return;
     }
 
-    const newUser = { email, password };
-    setUsers([...users, newUser]);
-    setSignedUpUser(newUser);
-    setMessage("Account created successfully!");
-    setEmail("");
-    setPassword("");
-    setConfirmPassword("");
+    try{
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+      setSignedUpUser({ email: user.email, uid: user.uid})
+      setMessage("Account created successfully!");
+      
+      setEmail("");
+      setPassword("");
+      setConfirmPassword("");
+    } catch (error) {
+      switch (error.code) {
+        case "auth/email-already-in-use":
+          setMessage("This email is already registered.");
+          break;
+        case "auth/invalid-email":
+          setMessage("Invalid email format.");
+          break;
+        case "auth/weak-password":
+          setMessage("Password must be at least 6 characters long.");
+          break;
+        default:
+          setMessage("Error creating account: " + error.message);
+      }
+    }finally {
+      setLoading(false);  
+    }
   };
 
 
@@ -71,6 +96,8 @@ function SignUpPage() {
             message={message}    
             handleSubmit={handleSubmit}
             passwordsMatch={passwordsMatch}
+            isPasswordValid={isPasswordValid}
+            loading={loading}
           />
 
         )}
@@ -89,7 +116,7 @@ function header() {
     <div className="app-header">
       <h1>Heartbeat</h1>
       <h3>Sign-Up</h3>
-      <p>Create old new account</p>
+      <p>Create new account</p>
     </div>
   );
 }
@@ -103,11 +130,16 @@ function SignUpDetails({
 
   message, 
   handleSubmit,
-  passwordsMatch
+  passwordsMatch,
+  isPasswordValid,
+  loading
 })
 
 
     {
+      const isEmailValid = email.includes('@') && email.includes('.');
+      const showPasswordError = password.length > 0 && !isPasswordValid;
+      const showMatchError = confirmPassword.length > 0 && !passwordsMatch;
 
       return (
         <div className="sign-in">
@@ -119,9 +151,12 @@ function SignUpDetails({
               placeholder="Email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className={email.rules > 0 ? "input-valid" : "input-invalid"}
+              className={email.length > 0 ? (isEmailValid ? "input-valid" : "input-invalid") : ""}
               required
             />
+            {email.length > 0 && !isEmailValid && (
+          <p className="field-error">Please enter a valid email</p>
+        )}
 
 
 
@@ -131,11 +166,12 @@ function SignUpDetails({
               placeholder="Password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className={password.rules > 0 ? "input-valid" : "input-invalid"}
+              className={password.length > 0 ? (isPasswordValid ? "input-valid" : "input-invalid") : ""}
               required
             />
-
-
+            {showPasswordError && (
+              <p className="field-error">Password must be at least 6 characters long.</p>
+            )}
 
             {/* Confirm Password */}
             <input
@@ -143,7 +179,7 @@ function SignUpDetails({
               placeholder="Confirm Password"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
-              className={confirmPassword.length > 0 ? (passwordsMatch ? "match-valid" : "match-invalid") : ""}
+              className={confirmPassword.length > 0 ? (passwordsMatch ? "input-valid" : "input-invalid") : ""}
               required
             />
 
@@ -154,15 +190,22 @@ function SignUpDetails({
               </p>
             )}
 
-            <button type="submit" disabled={!passwordsMatch}>
-              Sign Up
-            </button>
-          </form>
+          <button 
+          type="submit" 
+          disabled={!passwordsMatch || !isPasswordValid || loading}
+        >
+          {loading ? "Creating Account..." : "Sign Up"}
+        </button>
+      </form>
 
-          {message && <p className={message.includes("successfully") ? "message-success" : "message-error"}>{message}</p>}
-        </div>
-      );
-    }
+          {message && (
+        <p className={message.includes("successfully") ? "message-success" : "message-error"}>
+          {message}
+        </p>
+      )}
+    </div>
+  );
+}
 
 
 
@@ -173,7 +216,7 @@ function UserCard({ user, onBack }) {
       <h3>Welcome!</h3>
       <p className="user-card-email">{user.email}</p>
       <p className="user-card-detail">Your account has been created.</p>
-
+      <p className="user-card-detail">User ID: {user.uid}</p>
 
 
 
