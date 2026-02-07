@@ -1,7 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import "./css/Settings.css";
 
 function SettingsPage() {
+  const navigate = useNavigate();
   const [darkMode, setDarkMode] = useState(false);
   const [newEmail, setNewEmail] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -12,8 +14,42 @@ function SettingsPage() {
     confirmPassword.length === 0 ||
     newPassword === confirmPassword;
 
+  
+  useEffect(() => {
+    if (darkMode) {
+      document.body.classList.add("dark-mode");
+    } else {
+      document.body.classList.remove("dark-mode");
+    }
+    
+    
+    return () => {
+      document.body.classList.remove("dark-mode");
+    };
+  }, [darkMode]);
+
+  const handleGoBack = () => {
+    navigate('/welcome'); 
+  };
+
   return (
-    <div className={darkMode ? "dark" : ""}>
+    <div className="settings-page">
+      {/* Back Arrow */}
+      <button className="back-arrow" onClick={handleGoBack} aria-label="Go back">
+        <svg 
+          width="24" 
+          height="24" 
+          viewBox="0 0 24 24" 
+          fill="none" 
+          stroke="currentColor" 
+          strokeWidth="2" 
+          strokeLinecap="round" 
+          strokeLinejoin="round"
+        >
+          <path d="M19 12H5M12 19l-7-7 7-7"/>
+        </svg>
+      </button>
+
       <div className="settings-container">
         <h2>Settings</h2>
 
@@ -27,22 +63,20 @@ function SettingsPage() {
             placeholder="Your username"
           />
 
-          <label>Email</label>
+          <label>Current Email</label>
           <input
             type="email"
             placeholder="user@example.com"
             disabled
           />
           
-        
-          <label>Email</label>
+          <label>New Email</label>
           <input
             type="email"
             placeholder="Enter new email"
             value={newEmail}
             onChange={(e) => setNewEmail(e.target.value)}
           />
-
 
           <label>New Password</label>
           <input
@@ -81,10 +115,11 @@ function SettingsPage() {
           <div className="toggle">
             <input
               type="checkbox"
+              id="dark-mode-toggle"
               checked={darkMode}
               onChange={() => setDarkMode(!darkMode)}
             />
-            <span>Enable Dark Mode</span>
+            <label htmlFor="dark-mode-toggle">Enable Dark Mode</label>
           </div>
         </div>
 
@@ -93,18 +128,18 @@ function SettingsPage() {
           <h3>Health Tracking</h3>
 
           <div className="toggle">
-            <input type="checkbox" defaultChecked />
-            <span>Measure Steps</span>
+            <input type="checkbox" id="steps" defaultChecked />
+            <label htmlFor="steps">Measure Steps</label>
           </div>
 
           <div className="toggle">
-            <input type="checkbox" defaultChecked />
-            <span>Measure Heart Rate</span>
+            <input type="checkbox" id="heart-rate" defaultChecked />
+            <label htmlFor="heart-rate">Measure Heart Rate</label>
           </div>
 
           <div className="toggle">
-            <input type="checkbox" />
-            <span>Measure Stairs Climbed</span>
+            <input type="checkbox" id="stairs" />
+            <label htmlFor="stairs">Measure Stairs Climbed</label>
           </div>
         </div>
 
@@ -120,4 +155,3 @@ function SettingsPage() {
 }
 
 export default SettingsPage;
-
