@@ -1,7 +1,7 @@
 import './css/LoginPage.css';
 import { useState } from 'react';
-import SignUpPage from './SignUpPage';
-
+import { auth } from "../firebase/firebase";
+import { signInWithEmailAndPassword } from "firebase/auth";
 
 
 function LoginPage() {
@@ -10,14 +10,42 @@ function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
-  const handleSubmit = (e) => {
-    //this part is just a mockup, replace with the authentication and the login from the database
+  const [loading, setLoading] = useState(false);
+  const [user, setUser] = useState(null);
+ 
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
+    setMessage("");
 
-    if (email === "user@example.com" && password === "password") {
+    try {
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const loggedInUser = userCredential.user;
+      setUser(loggedInUser);
       setMessage("Login successful");
-    } else {
-      setMessage("Invalid email or password");
+
+    } catch (error) {
+      switch (error.code) {
+        case "auth/user-not-found":
+          setMessage("No account found with this email.");
+          break;
+        case "auth/wrong-password":
+          setMessage("Incorrect password.");
+          break;
+        case 'auth/invalid-email':
+          setMessage("Invalid email address.");
+          break;
+        case 'auth/invalid-credential':
+          setMessage("Invalid email or password.");
+          break;
+        case 'auth/too-many-requests':
+          setMessage("Too many failed attempts. Please try again later.");
+          break;
+        default:
+          setMessage("Login failed: " + error.message);
+      }
+    } finally {
+      setLoading(false);
     }
 
   };
@@ -28,7 +56,27 @@ function LoginPage() {
     <div className="App ">
       {header()}
       <main >
-        {SignInDetails({ email, setEmail, password, setPassword,message, handleSubmit })}
+        {user ? (
+          <div className="user-card">
+            <div className="user-card-icon">✓</div>
+            <h3>Welcome back!</h3>
+            <p className="user-card-email">{user.email}</p>
+            <p className="user-card-detail">You are now logged in.</p>
+            <button onClick={() => { setUser(null); setEmail(""); setPassword(""); }}>
+              Log Out
+            </button>
+          </div>
+        ) : (
+          <SignInDetails 
+            email={email} 
+            setEmail={setEmail} 
+            password={password} 
+            setPassword={setPassword}
+            message={message} 
+            handleSubmit={handleSubmit}
+            loading={loading}
+          />
+        )}
       </main>
       
     </div>
@@ -40,11 +88,10 @@ function LoginPage() {
 
 
 function header() {
-  return (
+   return (
     <div className="app-header">
       <h1>Heartbeat</h1>
       <h3>Enter your email or sign-up</h3>
-      
     </div>
   );
 }
@@ -53,7 +100,7 @@ function header() {
 
 
 
-function SignInDetails({ email, setEmail, password, setPassword, message ,handleSubmit }) {
+function SignInDetails({ email, setEmail, password, setPassword, message ,handleSubmit, loading }) {
   return (
     <div className="sign-in">
       <form onSubmit={handleSubmit} className="login-form">
@@ -65,24 +112,29 @@ function SignInDetails({ email, setEmail, password, setPassword, message ,handle
           required
         />
 
-      <input
-        type="password"
-        placeholder="Password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        required
-      />
+        <input
+          type="password"
+          placeholder="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+        />
 
-      <button type="button">Log In</button>
-    </form>
-    {message && <p>{message}</p>}
-
-    <br></br>
-    {SignUp()}
-    
+        {/* changed login button to submit and not button */}
+        <button type="submit" disabled={loading}>
+          {loading ? "Logging in..." : "Log In"}
+        </button>
+      </form>
       
- 
-  </div>
+      {message && (
+        <p className={message.includes("successful") ? "message-success" : "message-error"}>
+          {message}
+        </p>
+      )}
+
+      <br />
+      <SignUp />
+    </div>
   );
 }
 
