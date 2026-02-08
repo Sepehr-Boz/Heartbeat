@@ -7,6 +7,7 @@ import WelcomePage from './pages/WelcomePage';
 import QRPage from './pages/QRPage';
 import ProfilePage from './pages/Profile';
 import SettingsPage from './pages/Settings';
+import StatsPage from './pages/StatsPage';
 
 
 function App() {
@@ -21,6 +22,9 @@ function App() {
         <Route path='/profile' element={<ProfilePage/>}></Route>
         <Route path='/settings' element={<SettingsPage/>}></Route>
         {/* <Route path='/home' element={<HomePage/>}></Route> */}
+
+        {/* TODO: pass in props to the stats page through json */}
+        <Route path='/stats' element={<StatsPage/>}></Route>
       </Routes>
     </div>
   );
