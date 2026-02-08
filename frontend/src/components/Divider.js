@@ -1,4 +1,4 @@
-import "./Divider.css";
+import "./css/Divider.css";
 
 function Divider(props){
     return (

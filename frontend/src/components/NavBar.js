@@ -1,10 +1,10 @@
 import { useNavigate } from "react-router-dom";
 
-import barsIcon from "./ChartIcon.svg";
-import qrIcon from "./QRIcon.svg";
-import profIcon from "./PersonIcon.svg";
+import barsIcon from "./images/ChartIcon.svg";
+import qrIcon from "./images/QRIcon.svg";
+import profIcon from "./images/PersonIcon.svg";
 
-import "./NavBar.css";
+import "./css/NavBar.css";
 
 /**
  * Creates a custom clickable icon for the navbar

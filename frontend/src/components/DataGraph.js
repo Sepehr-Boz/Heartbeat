@@ -9,7 +9,7 @@ import {
   NumberAxisModule,
 } from "ag-charts-community";
 
-import "./DataGraph.css";
+import "./css/DataGraph.css";
 
 
 ModuleRegistry.registerModules([
