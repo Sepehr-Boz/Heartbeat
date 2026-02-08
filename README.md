@@ -44,3 +44,5 @@ Must be run in a unique terminal
 
 ### `fastapi dev ./backend/server.py`
 
+
+this app will be design mainly for the resolution of 375 x 812
