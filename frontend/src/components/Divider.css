@@ -1,0 +1,24 @@
+.divider{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    width: 100%;
+    column-gap: 12px;
+}
+
+.divider-line{
+    flex: 1;
+    height: 1px;
+    width: 100%;
+    background-color: #828282;
+    /* filter: brightness(0) saturate(100%) invert(56%) sepia(3%) saturate(10%) hue-rotate(360deg) brightness(91%) contrast(80%); */
+}
+
+.divider-text{
+    font-size: 14px;
+    font-weight: 400;
+    font-family: "inter", sans-serif;
+    color: #828282;
+    white-space: nowrap;
+    /* filter: brightness(0) saturate(100%) invert(56%) sepia(3%) saturate(10%) hue-rotate(360deg) brightness(91%) contrast(80%); */
+}
