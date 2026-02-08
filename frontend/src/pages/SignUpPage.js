@@ -1,15 +1,14 @@
 import "./css/SignUpPage.css";
 import { useState } from "react";
-import { auth, db } from "../config/firebase.js"; // adjust path as needed
+import { auth } from "../config/firebase.js"; // adjust path as needed
 import { createUserWithEmailAndPassword, sendEmailVerification } from "firebase/auth";
-import { doc, setDoc } from "firebase/firestore";
 
 function SignUpPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [message, setMessage] = useState("");
-  const [users, setUsers] = useState([]);
+  //const [users, setUsers] = useState([]);
   const [signedUpUser, setSignedUpUser] = useState(null);
   const [loading, setLoading] = useState(false);
 
@@ -26,12 +25,12 @@ function SignUpPage() {
 
   const passwordsMatch = password === confirmPassword;
   const isPasswordValid = password.length >= 6;
+  const isEmailValid = email.includes('@') && email.includes('.');
 
 
 
 
-
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setMessage("");
@@ -42,18 +41,42 @@ function SignUpPage() {
       return;
     }
 
-    if (users.find((u) => u.email === email)) {
-      setMessage("This email is already registered.");
+    if (!isPasswordValid) {
+      setMessage("Password must be at least 6 characters.");
+      setLoading(false);
       return;
     }
 
-    const newUser = { email, password };
-    setUsers([...users, newUser]);
-    setSignedUpUser(newUser);
-    setMessage("Account created successfully!");
-    setEmail("");
-    setPassword("");
-    setConfirmPassword("");
+    try {
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+
+      await sendEmailVerification(user);
+
+      setSignedUpUser({ email: user.email, uid: user.uid });
+      setMessage("Account created successfully! Please verify your email.");
+      
+      setEmail("");
+      setPassword("");
+      setConfirmPassword("");
+      
+    } catch (error) {
+      switch (error.code) {
+        case 'auth/email-already-in-use':
+          setMessage("This email is already registered.");
+          break;
+        case 'auth/invalid-email':
+          setMessage("Invalid email address.");
+          break;
+        case 'auth/weak-password':
+          setMessage("Password is too weak.");
+          break;
+        default:
+          setMessage("Error: " + error.message);
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
 
@@ -77,6 +100,9 @@ function SignUpPage() {
             message={message}
             handleSubmit={handleSubmit}
             passwordsMatch={passwordsMatch}
+            loading={loading}
+            isEmailValid={isEmailValid}
+            isPasswordValid={isPasswordValid}
           />
         )}
         <LogIn />
@@ -106,7 +132,8 @@ function SignUpDetails({
   handleSubmit,
   passwordsMatch,
   loading,
-  submitted
+  isEmailValid,
+  isPasswordValid
 })
 
 
@@ -122,7 +149,7 @@ function SignUpDetails({
               placeholder="Email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className={email.rules > 0 ? "input-valid" : "input-invalid"}
+              className={email.length > 0 ? (isEmailValid ? "input-valid" : "input-invalid") : ""}
               required
             />
 
@@ -134,7 +161,7 @@ function SignUpDetails({
               placeholder="Password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className={password.rules > 0 ? "input-valid" : "input-invalid"}
+              className={password.length > 0 ? (isPasswordValid ? "input-valid" : "input-invalid") : ""}
               required
             />
 
@@ -150,18 +177,22 @@ function SignUpDetails({
               required
             />
 
-        {submitted && confirmPassword.length > 0 && (
+        {confirmPassword.length > 0 && (
           <p className={passwordsMatch ? "match-valid" : "match-invalid"}>
-            {passwordsMatch ? "✓ Passwords match" : "Passwords do not match"}
+            {passwordsMatch ? "✓ Passwords match" : "✗ Passwords do not match"}
           </p>
         )}
 
-            <button type="submit" disabled={!passwordsMatch}>
-              Sign Up
+            <button type="submit" disabled={!passwordsMatch || loading}>
+              {loading ? "Creating Account..." : "Sign Up"}
             </button>
           </form>
 
-          {message && <p className={message.includes("successfully") ? "message-success" : "message-error"}>{message}</p>}
+          {message && (
+            <p className={message.includes("successfully") ? "message-success" : "message-error"}>
+              {message}
+              </p>
+            )}
         </div>
       );
     }
@@ -187,7 +218,7 @@ function LogIn() {
     <div className="login-form">
       <h3>Already have an account?</h3>
       <a href="/Login">
-        <button type="submit">Log In</button>
+        <button type="button">Log In</button>
       </a>
     </div>
   );
