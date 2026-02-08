@@ -1,6 +1,6 @@
 import "./css/SignUpPage.css";
 import { useState } from "react";
-import { auth, db } from "./firebase/config"; // adjust path as needed
+import { auth, db } from "../config/firebase.js"; // adjust path as needed
 import { createUserWithEmailAndPassword, sendEmailVerification } from "firebase/auth";
 import { doc, setDoc } from "firebase/firestore";
 
@@ -9,8 +9,9 @@ function SignUpPage() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [message, setMessage] = useState("");
-  //const [users, setUsers] = useState([]);
+  const [users, setUsers] = useState([]);
   const [signedUpUser, setSignedUpUser] = useState(null);
+  const [loading, setLoading] = useState(false);
 
 
   // information which i will add for later use
@@ -103,7 +104,9 @@ function SignUpDetails({
   setConfirmPassword,
   message,
   handleSubmit,
-  passwordsMatch
+  passwordsMatch,
+  loading,
+  submitted
 })
 
 
