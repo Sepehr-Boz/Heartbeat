@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
-import backArrowIcon from "./BackArrow.svg";
-import "./TitleBar.css";
+import backArrowIcon from "./images/BackArrow.svg";
+import "./css/TitleBar.css";
 
 // props will take: string title, and boolean enableBack
 function TitleBar(props){

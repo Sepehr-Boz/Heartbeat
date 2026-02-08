@@ -1,0 +1,15 @@
+.data-graph-container{
+    border-style: solid;
+    border-color: #E0E0E0;
+    border-width: 1px;
+    border-radius: 8px;
+
+    width: fit-content;
+    height: fit-content;
+    padding: 5px; /* padding is needed otherwise the
+    graph will clip over the border*/
+
+    scale: 1;
+
+    font-family: 'Inter';
+}
