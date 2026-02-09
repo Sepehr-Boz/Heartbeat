@@ -63,6 +63,22 @@
   color: #ef4444;
   display: block;
   margin-top: 0.3rem;
+  font-size: 0.875rem;
+}
+
+.success-text {
+  color: #10b981;
+  display: block;
+  margin-top: 0.3rem;
+  font-size: 0.875rem;
+}
+
+.info-text {
+  color: #6b7280;
+  display: block;
+  margin-top: 0.3rem;
+  font-size: 0.875rem;
+  font-style: italic;
 }
 
 .toggle {
@@ -105,6 +121,25 @@
   cursor: not-allowed;
 }
 
+/* Messages */
+.message-success {
+  color: #10b981;
+  background: #d1fae5;
+  padding: 0.75rem;
+  border-radius: 6px;
+  margin-top: 1rem;
+  text-align: center;
+}
+
+.message-error {
+  color: #ef4444;
+  background: #fee2e2;
+  padding: 0.75rem;
+  border-radius: 6px;
+  margin-top: 1rem;
+  text-align: center;
+}
+
 .back-arrow {
   position: fixed;
   top: 2rem;
@@ -132,7 +167,7 @@
   color: #374151;
 }
 
-
+/* Dark Mode Styles */
 body.dark-mode {
   background: #0a0a0a;
 }
@@ -178,6 +213,24 @@ body.dark-mode .back-arrow:hover {
 
 body.dark-mode .back-arrow svg {
   color: #f5f5f5;
+}
+
+body.dark-mode .message-success {
+  color: #10b981;
+  background: #064e3b;
+}
+
+body.dark-mode .message-error {
+  color: #f87171;
+  background: #7f1d1d;
+}
+
+body.dark-mode .info-text {
+  color: #9ca3af;
+}
+
+body.dark-mode .success-text {
+  color: #34d399;
 }
 
 
