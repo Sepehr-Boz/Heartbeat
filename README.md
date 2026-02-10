@@ -27,3 +27,7 @@
 ### 2. Start the venv `python3 -m venv venv`
 ### 3. Open the venv `source venv/bin/activate`
 this app will be design mainly for the resolution of 375 x 812
+
+
+
+

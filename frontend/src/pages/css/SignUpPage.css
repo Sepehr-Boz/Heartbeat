@@ -44,7 +44,7 @@ main {
   color: #fff;
   border: none;
   border-radius: 8px;
-  font-size: 15px;
+  font-size: 13px;
   font-weight: 600;
   cursor: pointer;
   margin-top: 8px;
@@ -53,6 +53,13 @@ main {
 
 button:hover {
   background: #2563eb;
+}
+
+.error-text {
+  color: #ef4444;
+  display: block;
+  margin-top: 0.3rem;
+  font-size: 12;
 }
 
 

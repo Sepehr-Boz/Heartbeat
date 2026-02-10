@@ -12,6 +12,7 @@ function SignUpPage() {
   const [signedUpUser, setSignedUpUser] = useState(null);
   const [loading, setLoading] = useState(false);
 
+  const [submitted, setSubmitted] = useState(false);
 
   // information which i will add for later use
   // const [Username, setUsername] = useState("");
@@ -24,7 +25,7 @@ function SignUpPage() {
 
 
   const passwordsMatch = password === confirmPassword;
-  const isPasswordValid = password.length >= 6;
+  const isPasswordValid = password.length >= 8;
   const isEmailValid = email.includes('@') && email.includes('.');
 
 
@@ -34,15 +35,19 @@ function SignUpPage() {
     e.preventDefault();
     setLoading(true);
     setMessage("");
+    setSubmitted(true);
 
     if (!passwordsMatch) {
       setMessage("Passwords do not match.");
       setLoading(false);
       return;
     }
+    else{
+      setMessage("");
+    }
 
     if (!isPasswordValid) {
-      setMessage("Password must be at least 6 characters.");
+      setMessage("Password must be at least 8 characters.");
       setLoading(false);
       return;
     }
@@ -111,15 +116,7 @@ function SignUpPage() {
   );
 }
 
-function header() {
-  return (
-    <div className="app-header">
-      <h1>Heartbeat</h1>
-      <h3>Sign-Up</h3>
-      <p>Create new account</p>
-    </div>
-  );
-}
+
 
 function SignUpDetails({
   email,
@@ -133,7 +130,8 @@ function SignUpDetails({
   passwordsMatch,
   loading,
   isEmailValid,
-  isPasswordValid
+  isPasswordValid,
+  submitted
 })
 
 
@@ -177,15 +175,24 @@ function SignUpDetails({
               required
             />
 
-        {confirmPassword.length > 0 && (
-          <p className={passwordsMatch ? "match-valid" : "match-invalid"}>
-            {passwordsMatch ? "✓ Passwords match" : "✗ Passwords do not match"}
-          </p>
-        )}
 
-            <button type="submit" disabled={!passwordsMatch || loading}>
+            {submitted && confirmPassword.length > 0 && (
+              <p className={passwordsMatch ? "match-valid" : "match-invalid"}>
+                    {passwordsMatch ? "✓ Passwords match" : "Passwords do not match"}
+              </p>
+            )}
+
+
+
+            <button type="submit" disabled={(!passwordsMatch || loading )&& submitted}>
               {loading ? "Creating Account..." : "Sign Up"}
             </button>
+
+
+
+
+     
+
           </form>
 
           {message && (
@@ -197,6 +204,18 @@ function SignUpDetails({
       );
     }
 
+
+
+
+
+
+
+
+
+
+
+
+
 function UserCard({ user, onBack }) {
   return (
     <div className="user-card">
@@ -204,14 +223,31 @@ function UserCard({ user, onBack }) {
       <h3>Check Your Email!</h3>
       <p className="user-card-email">{user.email}</p>
       <p className="user-card-detail">Your account has been created.</p>
-
-
-
-
       <button onClick={onBack}>Back to Sign Up</button>
     </div>
   );
 }
+
+
+
+
+
+
+
+
+
+
+
+function header() {
+  return (
+    <div className="app-header">
+      <h1>Heartbeat</h1>
+      <h3>Sign-Up</h3>
+      <p>Create new account</p>
+    </div>
+  );
+}
+
 
 function LogIn() {
   return (
@@ -220,7 +256,7 @@ function LogIn() {
       <a href="/Login">
         <button type="button">Log In</button>
       </a>
-    </div>
+    </div>  
   );
 }
 
