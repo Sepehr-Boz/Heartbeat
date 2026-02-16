@@ -82,10 +82,10 @@ function DataGraph(props){
           },
           color: '#828282',
           fontWeight: 300,
-          fontSize: 10
+          fontSize: 10,
+          avoidCollisions: true
         },
         interval: {
-          maxSpacing: 25
         },
         line: {
           enabled: false
@@ -173,6 +173,81 @@ function DailyDataGraph(props){
 }
 
 
+function WeeklyDataGraph(props){
+  const start = new Date();
+  start.setDate(start.getDate() - start.getDay()); // will move it to the start of the week
+  start.setHours(0,0,0,0);
+  const end = new Date(start);
+  end.setDate(end.getDate() + 7);
+
+  return (
+    <DataGraph
+      title={props.title}
+      category={props.category}
+      data={props.data}
+      minTime={start}
+      maxTime={end}
+      minData={0}
+      maxData={10_000}
+      timeFormatter={(value) => {
+        let day = value.getDay();
+        let dayNames = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+        return dayNames[day];
+      }}
+    />
+  )
+}
+
+function MonthlyDataGraph(props){
+  const start = new Date();
+  start.setDate(1);
+  start.setHours(0,0,0,0);
+  const end = new Date(start);
+  end.setMonth(end.getMonth() + 1, 0);
+
+  return (
+    <DataGraph
+      title={props.title}
+      category={props.category}
+      data={props.data}
+      minTime={start}
+      maxTime={end}
+      minData={0}
+      maxData={10_000}
+      timeFormatter={(value) => {
+        let date = value.getDate();
+        return date;
+      }}
+    />
+  )
+}
+
+function YearlyDataGraph(props){
+  const start = new Date();
+  start.setMonth(0,1);
+  start.setHours(0,0,0,0);
+  const end = new Date(start);
+  end.setFullYear(end.getFullYear() + 1);
+
+  return (
+    <DataGraph
+      title={props.title}
+      category={props.category}
+      data={props.data}
+      minTime={start}
+      maxTime={end}
+      minData={0}
+      maxData={10_000}
+      timeFormatter={(value) => {
+        let month = value.getMonth();
+        let monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
+          'July', 'August', 'September', 'October', 'November', 'December'];
+        return monthNames[month];
+      }}
+    />
+  )
+}
+
 /* example usage of DailyDataGraph
 
 const start = new Date('Sat Feb 07 2026 00:00:00 GMT+0000');
@@ -205,5 +280,8 @@ const [test, setTest] = useState(
 
 export {
   DataGraph,
-  DailyDataGraph
+  DailyDataGraph,
+  WeeklyDataGraph,
+  MonthlyDataGraph,
+  YearlyDataGraph
 };
