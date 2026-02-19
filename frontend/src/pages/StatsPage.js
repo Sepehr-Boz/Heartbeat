@@ -26,8 +26,50 @@ ModuleRegistry.registerModules([
 
 
 
+// defines the line + area colours for each of the data categories
+const stepsColors = {
+  stroke : '#2D6EFF',
+  fill: '#B8C5FF',
+  markerGradient: [
+    { color: "rgba(45,110,255,0)", stop: 0 },
+    { color: "rgba(45,110,255,0.5)", stop: 0.62 },
+    { color: "rgba(45,110,255,1)", stop: 0.75 },
+    { color: "rgba(45,110,255,1)", stop: 1 }
+  ],
+}
 
+const distanceColors = {
+  stroke : '#56FF22',
+  fill: '#BDFFA9',
+  markerGradient: [
+    { color: "rgba(86,255,34,0)", stop: 0 },
+    { color: "rgba(86,255,34,0.5)", stop: 0.62 },
+    { color: "rgba(86,255,34,1)", stop: 0.75 },
+    { color: "rgba(86,255,34,1)", stop: 1 }
+  ],
+}
 
+const caloriesColors = {
+  stroke : '#FFCF22',
+  fill: '#FFDE68',
+  markerGradient: [
+    { color: "rgba(255,207,34,0)", stop: 0 },
+    { color: "rgba(255,207,34,0.5)", stop: 0.62 },
+    { color: "rgba(255,207,34,1)", stop: 0.75 },
+    { color: "rgba(255,207,34,1)", stop: 1 }
+  ],
+}
+
+const heartrateColors = {
+  stroke : '#FF2D31',
+  fill: '#FF9A9C',
+  markerGradient: [
+    { color: "rgba(255,45,49,0)", stop: 0 },
+    { color: "rgba(255,45,49,0.5)", stop: 0.62 },
+    { color: "rgba(255,45,49,1)", stop: 0.75 },
+    { color: "rgba(255,45,49,1)", stop: 1 }
+  ],
+}
 
 
 
@@ -54,9 +96,6 @@ function StatsPage(props){
     const [yearlyOptions, setYearlyOptions] = useState({});
 
 
-    // TODO: comment everything once done
-
-    // TODO: FIX THE INDENTATION!!
 
     // !MUST filter/group together data points because when there are too many then the marker hides away in the graph
     const fetchDailyData = async () => {
@@ -96,17 +135,18 @@ function StatsPage(props){
         data: dailyData,
         series: [
           {type: 'area', xKey: 'time', xName: 'Time', yKey: 'data', yName: `${category.charAt(0).toUpperCase() + category.substring(1)}`,
-          stroke: '#2D6EFF', strokeWidth: 3, fill: '#B8C5FF', fillOpacity: 0.25,
+          stroke: category == 'steps' ? stepsColors.stroke : category == 'distance_m' ? distanceColors.stroke
+          : category == 'calories' ? caloriesColors.stroke : category == 'heartrate' ? heartrateColors.stroke : stepsColors.stroke,
+          strokeWidth: 3,
+          fill: category == 'steps' ? stepsColors.fill : category == 'distance_m' ? distanceColors.fill
+          : category == 'calories' ? caloriesColors.fill : category == 'heartrate' ? heartrateColors.fill : stepsColors.fill,
+          fillOpacity: 0.25,
           marker: {
             itemStyler: ({datum}) => {
               const isLastElem = (datum == dailyData[dailyData.length-1]);
               return {shape: 'circle', size: isLastElem ? 30 : 0,
-              fill: {type: 'gradient', colorStops: [
-                { color: "rgba(45,110,255,0)", stop: 0 },
-                { color: "rgba(45,110,255,0.5)", stop: 0.62 },
-                { color: "rgba(45,110,255,1)", stop: 0.75 },
-                { color: "rgba(45,110,255,1)", stop: 1 },
-              ]}
+              fill: {type: 'gradient', colorStops: category == 'steps' ? stepsColors.markerGradient : category == 'distance_m' ? distanceColors.markerGradient
+                : category == 'calories' ? caloriesColors.markerGradient : category == 'heartrate' ? heartrateColors.markerGradient : stepsColors.markerGradient}
               }
             }
           }}
@@ -154,7 +194,21 @@ function StatsPage(props){
           start_date: weekStart.toISOString(),
           end_date: weekEnd.toISOString()
         })
-      }).then(res => res.json());
+      })
+      .catch(x => {
+        return fetch("http://127.0.0.1:8000/data/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          category: category,
+          start_date: weekStart.toISOString(),
+          end_date: weekEnd.toISOString()
+        })
+      })        
+      })
+      .then(res => res.json());
 
       // fill weekly data for the number of days in a week (7)
       let weeklyData = [];
@@ -177,17 +231,17 @@ function StatsPage(props){
         data: weeklyData,
         series: [
           {type: 'area', xKey: 'time', xName: 'Time', yKey: 'data', yName: `${category.charAt(0).toUpperCase() + category.substring(1)}`,
-          stroke: '#2D6EFF', strokeWidth: 3, fill: '#B8C5FF', fillOpacity: 0.25,
+          stroke: category == 'steps' ? stepsColors.stroke : category == 'distance_m' ? distanceColors.stroke
+          : category == 'calories' ? caloriesColors.stroke : category == 'heartrate' ? heartrateColors.stroke : stepsColors.stroke,
+          strokeWidth: 3, fill: category == 'steps' ? stepsColors.fill : category == 'distance_m' ? distanceColors.fill
+          : category == 'calories' ? caloriesColors.fill : category == 'heartrate' ? heartrateColors.fill : stepsColors.fill,
+          fillOpacity: 0.25,
           marker: {
             itemStyler: ({datum}) => {
               const isLastElem = (datum == weeklyData[weeklyData.length-1]);
               return {shape: 'circle', size: isLastElem ? 30 : 0,
-              fill: {type: 'gradient', colorStops: [
-                { color: "rgba(45,110,255,0)", stop: 0 },
-                { color: "rgba(45,110,255,0.5)", stop: 0.62 },
-                { color: "rgba(45,110,255,1)", stop: 0.75 },
-                { color: "rgba(45,110,255,1)", stop: 1 },
-              ]}
+              fill: {type: 'gradient', colorStops: category == 'steps' ? stepsColors.markerGradient : category == 'distance_m' ? distanceColors.markerGradient
+          : category == 'calories' ? caloriesColors.markerGradient : category == 'heartrate' ? heartrateColors.markerGradient : stepsColors.markerGradient}
               }
             }
           }}
@@ -262,17 +316,17 @@ function StatsPage(props){
         data: monthlyData,
         series: [
           {type: 'area', xKey: 'time', xName: 'Time', yKey: 'data', yName: `${category.charAt(0).toUpperCase() + category.substring(1)}`,
-          stroke: '#2D6EFF', strokeWidth: 3, fill: '#B8C5FF', fillOpacity: 0.25,
+          stroke: category == 'steps' ? stepsColors.stroke : category == 'distance_m' ? distanceColors.stroke
+          : category == 'calories' ? caloriesColors.stroke : category == 'heartrate' ? heartrateColors.stroke : stepsColors.stroke,
+          strokeWidth: 3, fill: category == 'steps' ? stepsColors.fill : category == 'distance_m' ? distanceColors.fill
+          : category == 'calories' ? caloriesColors.fill : category == 'heartrate' ? heartrateColors.fill : stepsColors.fill,
+          fillOpacity: 0.25,
           marker: {
             itemStyler: ({datum}) => {
               const isLastElem = (datum == monthlyData[monthlyData.length-1]);
               return {shape: 'circle', size: isLastElem ? 30 : 0,
-              fill: {type: 'gradient', colorStops: [
-                { color: "rgba(45,110,255,0)", stop: 0 },
-                { color: "rgba(45,110,255,0.5)", stop: 0.62 },
-                { color: "rgba(45,110,255,1)", stop: 0.75 },
-                { color: "rgba(45,110,255,1)", stop: 1 },
-              ]}
+              fill: {type: 'gradient', colorStops: category == 'steps' ? stepsColors.markerGradient : category == 'distance_m' ? distanceColors.markerGradient
+          : category == 'calories' ? caloriesColors.markerGradient : category == 'heartrate' ? heartrateColors.markerGradient : stepsColors.markerGradient}
               }
             }
           }}
@@ -343,17 +397,17 @@ function StatsPage(props){
         data: yearlyData,
         series: [
           {type: 'area', xKey: 'time', xName: 'Time', yKey: 'data', yName: `${category.charAt(0).toUpperCase() + category.substring(1)}`,
-          stroke: '#2D6EFF', strokeWidth: 3, fill: '#B8C5FF', fillOpacity: 0.25,
+          stroke: category == 'steps' ? stepsColors.stroke : category == 'distance_m' ? distanceColors.stroke
+          : category == 'calories' ? caloriesColors.stroke : category == 'heartrate' ? heartrateColors.stroke : stepsColors.stroke,
+          strokeWidth: 3, fill: category == 'steps' ? stepsColors.fill : category == 'distance_m' ? distanceColors.fill
+          : category == 'calories' ? caloriesColors.fill : category == 'heartrate' ? heartrateColors.fill : stepsColors.fill,
+          fillOpacity: 0.25,
           marker: {
             itemStyler: ({datum}) => {
               const isLastElem = (datum == yearlyData[yearlyData.length-1]);
               return {shape: 'circle', size: isLastElem ? 30 : 0,
-              fill: {type: 'gradient', colorStops: [
-                { color: "rgba(45,110,255,0)", stop: 0 },
-                { color: "rgba(45,110,255,0.5)", stop: 0.62 },
-                { color: "rgba(45,110,255,1)", stop: 0.75 },
-                { color: "rgba(45,110,255,1)", stop: 1 },
-              ]}
+              fill: {type: 'gradient', colorStops: category == 'steps' ? stepsColors.markerGradient : category == 'distance_m' ? distanceColors.markerGradient
+          : category == 'calories' ? caloriesColors.markerGradient : category == 'heartrate' ? heartrateColors.markerGradient : stepsColors.markerGradient}
               }
             }
           },

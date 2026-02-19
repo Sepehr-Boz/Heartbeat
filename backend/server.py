@@ -7,10 +7,13 @@ from datetime import datetime
 import csv
 
 
-TEST_STEPCOUNT_PATH = "./test-step-data.csv"
+TEST_DATA_PATH = "./test-data.csv"
 STEP_INDEX = 9
-STEP_STARTTIME_INDEX = 4
-STEP_TIMEZONE_INDEX = 13
+METER_DISTANCE_INDEX = 11
+CALORIES_INDEX = 12
+
+TIME_INDEX = 4
+TIMEZONE_INDEX = 13
 
 
 
@@ -50,37 +53,26 @@ class GetDataRequest(BaseModel):
 # TODO: for example, if a day is passed then it groups all points within the same day into one point and returns that one single point
 @app.post("/data/")
 def get_data(req: GetDataRequest):
-    all_data: list[dict] = []
-    if req.category == "steps":
-        # read data from the path and parse each row into a dictionary
-        # if the time is between the start and end then yield it otherwise ignore
-        with open(TEST_STEPCOUNT_PATH, newline='') as f:
-            reader = csv.reader(f, delimiter=',', quotechar='|')
-            data: dict = {'data': 0, 'time': 0}
-            for row in reader:
-                try:
-                    time: datetime = datetime.fromisoformat(row[STEP_STARTTIME_INDEX])
-                    time = time.replace(tzinfo=req.start_date.tzinfo)
+    # check that the category is an accepted one
+    if req.category not in ['steps', 'distance_m', 'calories']: return
 
-                    if time < req.start_date: 
-                        print(time, "rejected")
-                        continue
-                    elif time > req.end_date: break
-                    else:
-                        print(time, "accepted")
-                        data: dict = {
-                            'data': int(row[STEP_INDEX]), 
-                            'time': time
-                        }
-                        all_data.append(data)
-                        # yield data
+    data: dict = {'data': 0.0, 'time': None}
+    with open(TEST_DATA_PATH, newline='') as file:
+        reader = csv.reader(file, delimiter=',', quotechar='|')
+        for row in reader:
+            try:
+                data['time'] = datetime.fromisoformat(row[TIME_INDEX]).replace(tzinfo=req.start_date.tzinfo)
+                if data['time'] < req.start_date: continue
+                elif data['time'] > req.end_date: break
 
+                elif req.category == 'steps':
+                    data['data'] = int(row[STEP_INDEX])
+                elif req.category == 'distance_m':
+                    data['data'] = float(row[METER_DISTANCE_INDEX])
+                elif req.category == 'calories':
+                    data['data'] = float(row[CALORIES_INDEX])
 
-                except Exception as e:
-                    print(e)
-                    continue
-
-            return all_data
-
-    else:
-        pass
+                yield data
+            except Exception as e:
+                print(e)
+                continue
