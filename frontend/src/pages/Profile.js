@@ -24,7 +24,7 @@ function ProfilePage() {
             </div>
             <div className="profile-options">
                 <button className="option-button" onClick={() => navigate("/settings")}>Settings</button>
-                <button className="option-button">Scan User Code</button>
+                <button className="option-button" onClick={() => navigate("/scan")}>Scan User Code</button>
                 <button className="option-button">Contact GP</button>
                 <button className="option-button logout-button">Logout</button>
             </div>
