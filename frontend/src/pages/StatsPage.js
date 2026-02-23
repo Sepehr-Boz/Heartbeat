@@ -1,4 +1,5 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState} from "react";
+import { useLocation } from "react-router-dom";
 import TitleBar from "../components/TitleBar";
 import NavBar from "../components/NavBar";
 import Divider from "../components/Divider";
@@ -81,9 +82,10 @@ const heartrateColors = {
  * - *bool* showMonthly
  * - *bool* showYearly
  */
-function StatsPage(props){
-    // TODO: move these into props
-    const [category, setCategory] = useState("steps");
+function StatsPage({route}){
+    const location = useLocation();
+    const category = location.state.category;
+
     const [showDaily, setShowDaily] = useState(true);
     const [showWeekly, setShowWeekly] = useState(true);
     const [showMonthly, setShowMonthly] = useState(true);

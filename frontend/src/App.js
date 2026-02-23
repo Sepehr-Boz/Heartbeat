@@ -1,6 +1,6 @@
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
-// import HomePage from './pages/HomePage';
+import HomePage from './pages/Homepage';
 import LoginPage from './pages/LoginPage';
 import SignUpPage from './pages/SignUpPage';
 import WelcomePage from './pages/WelcomePage';
@@ -23,9 +23,7 @@ function App() {
         <Route path='/profile' element={<ProfilePage/>}></Route>
         <Route path='/settings' element={<SettingsPage/>}></Route>
         <Route path='/scan' element={<ScanQR/>}></Route>
-        {/* <Route path='/home' element={<HomePage/>}></Route> */}
-
-        {/* TODO: pass in props to the stats page through json */}
+        <Route path='/home' element={<HomePage/>}></Route>
         <Route path='/stats' element={<StatsPage/>}></Route>
       </Routes>
     </div>
