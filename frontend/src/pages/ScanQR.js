@@ -1,11 +1,14 @@
 // file to open up camera for scanning qr codes
-import React, {useEffect, useState} from "react";
+import React, {useEffect, useRef} from "react";
 import {Html5Qrcode} from "html5-qrcode";
 
 function ScanQR() {
+    const scannerRef = useRef(null);
+    const startedRef = useRef(false);
     useEffect(() => {
+        if(scannerRef.current) return;
         const scanner = new Html5Qrcode("reader");
-
+        scannerRef.current = scanner;
         scanner.start(
             {facingMode: "environment"},
             {
@@ -14,15 +17,21 @@ function ScanQR() {
             },
             (decodedText) => {
                 console.log("Medical Data:", decodedText);
-                scanner.stop()
+                //scanner.stop()
             },
-            (error) => {
-                console.log("Error scanning data")
-            }
-        );
+            () => {}
+        )
+        .then(() => {
+            startedRef.current = true;
+        })
+        .catch((err) => {
+            console.error("Camera open failed:", err);
+        });
         
         return () => {
-            scanner.stop().catch(() => {});
+            if(startedRef.current && scannerRef.current) {
+                scannerRef.current.stop().catch(() => {});
+            }
         };
     }, []);
 
