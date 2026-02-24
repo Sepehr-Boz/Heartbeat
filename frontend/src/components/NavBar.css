@@ -1,0 +1,33 @@
+/* NAVBAR */
+.navbar{
+    background-color: #ffffff;
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    height: fit-content;
+    padding-top: 1vh;
+    padding-bottom: 1vh;
+    align-content: center;
+    justify-content:space-around;
+    position: absolute;
+    bottom: 0px;
+
+    z-index: 10;
+}
+
+
+/* NAV ICONS */
+.navicon{
+    width: auto;
+    height: auto;
+}
+
+#current{
+    /* equivalent to black, have to use filter since its a svg */
+    filter: brightness(0) saturate(100%)
+}
+
+#other{
+    /* equivalent to grey, have to use filter since its a svg */
+    filter: brightness(0) saturate(100%) invert(91%) sepia(0%) saturate(0%) hue-rotate(222deg) brightness(86%) contrast(91%);
+}

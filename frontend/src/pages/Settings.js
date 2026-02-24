@@ -9,7 +9,6 @@ function SettingsPage() {
   const navigate = useNavigate();
   const [darkMode, setDarkMode] = useState(false);
   const [username, setUsername] = useState("");
-  const [newEmail, setNewEmail] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [gpDoctor, setGpDoctor] = useState("");
@@ -100,17 +99,7 @@ function SettingsPage() {
         updatedAt: new Date().toISOString(),
       });
 
-      // Update email if changed
-      if (newEmail && newEmail !== currentUser.email) {
-        await updateEmail(currentUser, newEmail);
-        
-        await updateDoc(userDocRef, {
-          email: newEmail,
-        });
-        
-        setMessage("Email updated successfully!");
-        setNewEmail("");
-      }
+
 
       // Update password if provided
       if (newPassword) {
@@ -127,8 +116,8 @@ function SettingsPage() {
         setConfirmPassword("");
       }
 
-      // If only settings were updated (no email/password change)
-      if (!newEmail && !newPassword) {
+      // If only settings were updated (password change)
+      if (!newPassword) {
         setMessage("Settings saved successfully!");
       }
       
@@ -204,14 +193,7 @@ function SettingsPage() {
             disabled
           />
           
-          <label htmlFor="new-email">New Email</label>
-          <input
-            id="new-email"
-            type="email"
-            placeholder="Enter new email"
-            value={newEmail}
-            onChange={(e) => setNewEmail(e.target.value)}
-          />
+
 
           <label htmlFor="new-password">New Password</label>
           <input
