@@ -140,7 +140,9 @@ function SignUpDetails({
       return (
         <div className="sign-in">
           <form onSubmit={handleSubmit} className="login-form">
-
+                <h3>Sign-Up</h3>
+             <h3>Create new account</h3>
+             <p></p>
             {/* Email */}
             <input
               type="email"
@@ -219,11 +221,9 @@ function SignUpDetails({
 function UserCard({ user, onBack }) {
   return (
     <div className="user-card">
-      <div className="user-card-icon">✉️</div>
       <h3>Check Your Email!</h3>
       <p className="user-card-email">{user.email}</p>
       <p className="user-card-detail">Your account has been created.</p>
-      <button onClick={onBack}>Back to Sign Up</button>
     </div>
   );
 }
@@ -242,8 +242,7 @@ function header() {
   return (
     <div className="app-header">
       <h1>Heartbeat</h1>
-      <h3>Sign-Up</h3>
-      <p>Create new account</p>
+
     </div>
   );
 }
@@ -252,7 +251,7 @@ function header() {
 function LogIn() {
   return (
     <div className="login-form">
-      <h3>Already have an account?</h3>
+      <h3>Click here to Log in</h3>
       <a href="/Login">
         <button type="button">Log In</button>
       </a>
