@@ -1,17 +1,20 @@
 import './css/LoginPage.css';
-import { useState } from 'react';
+import { useContext, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { auth } from "../config/firebase";
 import { signInWithEmailAndPassword } from "firebase/auth";
-
+import { UserContext } from '../App';
+import Cookies from 'universal-cookie';
 
 function LoginPage() {
-
+  const navigate = useNavigate();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
-  const [user, setUser] = useState(null);
+  const {user, setUser} = useContext(UserContext);
+  // const [user, setUser] = useState(null);
  
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -22,7 +25,24 @@ function LoginPage() {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const loggedInUser = userCredential.user;
       setUser(loggedInUser);
+      console.log(userCredential);
+      // setUser(loggedInUser);
+      // console.log(user);
       setMessage("Login successful");
+
+      // when logged in then set the cookie
+      const expiration = new Date();
+      expiration.setDate(expiration.getDate() + 7);
+      const id = userCredential.user.uid;
+      const accToken = userCredential.user.accessToken;
+
+      const cookies = new Cookies(null, {path:"/"});
+      cookies.set("id", id, {expires:expiration});
+      cookies.set("acc_token", accToken, {expires:expiration});
+      setUser({id: id, accessToken: accToken});
+
+      // if successful then navigate to the home page
+      navigate("/home");
 
     } catch (error) {
       switch (error.code) {
