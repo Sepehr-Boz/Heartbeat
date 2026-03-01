@@ -62,10 +62,16 @@ function LoginPage() {
             <h3>Welcome back!</h3>
             <p className="user-card-email">{user.email}</p>
             <p className="user-card-detail">You are now logged in.</p>
+            <br />
+            <HomePage />
+            <br />
+             <div className="login-form">
             <button onClick={() => { setUser(null); setEmail(""); setPassword(""); }}>
               Log Out
             </button>
-          </div>
+            </div>
+            </div>
+           
         ) : (
           <SignInDetails 
             email={email} 
@@ -134,6 +140,20 @@ function SignInDetails({ email, setEmail, password, setPassword, message ,handle
 
       <br />
       <SignUp />
+    </div>
+  );
+}
+
+
+function HomePage() {
+  return (
+    <div className="login-form">
+
+      <h3>click here to go to your HomePage</h3>
+      <a href="/Home">
+        <button type="button">Home</button>
+      </a>
+
     </div>
   );
 }
