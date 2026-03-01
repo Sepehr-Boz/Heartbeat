@@ -1,7 +1,10 @@
 import "./css/SignUpPage.css";
-import { useState } from "react";
+import { useState, useContext } from "react";
+import { useNavigate } from "react-router-dom";
+import Cookies from "universal-cookie";
 import { auth } from "../config/firebase.js"; // adjust path as needed
 import { createUserWithEmailAndPassword, sendEmailVerification } from "firebase/auth";
+import { UserContext } from "../App.js";
 
 function SignUpPage() {
   const [email, setEmail] = useState("");
@@ -13,6 +16,9 @@ function SignUpPage() {
   const [loading, setLoading] = useState(false);
 
   const [submitted, setSubmitted] = useState(false);
+
+  const {user, setUser} = useContext(UserContext);
+  const navigate = useNavigate();
 
   // information which i will add for later use
   // const [Username, setUsername] = useState("");
@@ -64,6 +70,21 @@ function SignUpPage() {
       setEmail("");
       setPassword("");
       setConfirmPassword("");
+
+      // when a user is FULLY signed up then set cookies, set user and navigate to the home page
+
+      const expiration = new Date();
+      expiration.setDate(expiration.getDate() + 7);
+      const id = userCredential.user.uid;
+      const accessToken = userCredential.user.accessToken;
+
+      const cookies = new Cookies(null, {path:"/"});
+      cookies.set("id", id, {expires:expiration});
+      cookies.set("acc_token", accessToken, {expires:expiration});
+      setUser({id:id, accessToken:accessToken});
+
+      navigate("/home");
+
       
     } catch (error) {
       switch (error.code) {
