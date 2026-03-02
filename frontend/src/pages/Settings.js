@@ -73,7 +73,7 @@ function SettingsPage() {
   }, [darkMode]);
 
   const handleGoBack = () => {
-    navigate('/welcome');
+    navigate(-1);
   };
 
   const handleSave = async () => {

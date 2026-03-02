@@ -66,7 +66,7 @@ function ProfilePage() {
                     cookies.remove("acc_token");
                     setUser(null);
                     // have to add in replace=true option to navigate to 'trick' the page into refreshing rather than pulling from history
-                    navigate("/", { replace: true });
+                    navigate("/welcome");
                 }}>Logout</button>
             </div>
             <NavBar isHome={false} isQr={false} isProfile={true} />
