@@ -11,6 +11,11 @@ import { getMessaging } from "firebase/messaging";
 
 // Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+// Import the functions you need from the SDKs you need
+
+
+// Your web app's Firebase configuration
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
   apiKey: "AIzaSyBuh0CKL5VqTmX0RcsRGzzwfDW67t5wSbo",
   authDomain: "heartbeat-781e3.firebaseapp.com",
@@ -21,6 +26,7 @@ const firebaseConfig = {
   measurementId: "G-G3QNSKH6WW"
 };
 
+// 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);

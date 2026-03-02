@@ -1,41 +1,34 @@
 import "./css/SignUpPage.css";
-import { useState, useContext } from "react";
+import { useState, useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Cookies from "universal-cookie";
-import { auth } from "../config/firebase.js"; // adjust path as needed
+import { auth } from "../config/firebase.js";
 import { createUserWithEmailAndPassword, sendEmailVerification } from "firebase/auth";
 import { UserContext } from "../App.js";
+import { enableNotifications, listenForNotifications } from "../services/notificationService";
 
 function SignUpPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [message, setMessage] = useState("");
-  //const [users, setUsers] = useState([]);
   const [signedUpUser, setSignedUpUser] = useState(null);
   const [loading, setLoading] = useState(false);
-
   const [submitted, setSubmitted] = useState(false);
 
   const {user, setUser} = useContext(UserContext);
   const navigate = useNavigate();
 
-  // information which i will add for later use
-  // const [Username, setUsername] = useState("");
-  // const [userAge, setUserAge] = useState("");
-  // const [GPname, setGPname] = useState("");
-  // const [trackSteps, setTrackSteps] = useState(false);
-  // const [trackHeartRate, setTrackHeartRate] = useState(false);
-  // const [trackCalories, setTrackCalories] = useState(false);
-
-
+  // Listen for notifications
+  useEffect(() => {
+    listenForNotifications((payload) => {
+      console.log('Notification received!', payload);
+    });
+  }, []);
 
   const passwordsMatch = password === confirmPassword;
   const isPasswordValid = password.length >= 8;
   const isEmailValid = email.includes('@') && email.includes('.');
-
-
-
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -47,8 +40,7 @@ function SignUpPage() {
       setMessage("Passwords do not match.");
       setLoading(false);
       return;
-    }
-    else{
+    } else {
       setMessage("");
     }
 
@@ -64,6 +56,14 @@ function SignUpPage() {
 
       await sendEmailVerification(user);
 
+      // Enable notifications - NEW CODE
+      const token = await enableNotifications(user.uid);
+      if (token) {
+        console.log('Notifications enabled successfully!');
+      } else {
+        console.log('User declined notifications');
+      }
+
       setSignedUpUser({ email: user.email, uid: user.uid });
       setMessage("Account created successfully! Please verify your email.");
       
@@ -71,8 +71,7 @@ function SignUpPage() {
       setPassword("");
       setConfirmPassword("");
 
-      // when a user is FULLY signed up then set cookies, set user and navigate to the home page
-
+      // Set cookies and navigate
       const expiration = new Date();
       expiration.setDate(expiration.getDate() + 7);
       const id = userCredential.user.uid;
@@ -84,7 +83,6 @@ function SignUpPage() {
       setUser({id:id, accessToken:accessToken});
 
       navigate("/home");
-
       
     } catch (error) {
       switch (error.code) {
@@ -104,10 +102,6 @@ function SignUpPage() {
       setLoading(false);
     }
   };
-
-
-
-
 
   return (
     <div className="App">
@@ -129,6 +123,7 @@ function SignUpPage() {
             loading={loading}
             isEmailValid={isEmailValid}
             isPasswordValid={isPasswordValid}
+            submitted={submitted}
           />
         )}
         <LogIn />
@@ -136,8 +131,6 @@ function SignUpPage() {
     </div>
   );
 }
-
-
 
 function SignUpDetails({
   email,
@@ -153,91 +146,60 @@ function SignUpDetails({
   isEmailValid,
   isPasswordValid,
   submitted
-})
+}) {
+  return (
+    <div className="sign-in">
+      <form onSubmit={handleSubmit} className="login-form">
+        <h3>Sign-Up</h3>
+        <h3>Create new account</h3>
+        <p></p>
+        
+        <input
+          type="email"
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          className={email.length > 0 ? (isEmailValid ? "input-valid" : "input-invalid") : ""}
+          required
+        />
 
+        <input
+          type="password"
+          placeholder="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          className={password.length > 0 ? (isPasswordValid ? "input-valid" : "input-invalid") : ""}
+          required
+        />
 
-    {
+        <input
+          type="password"
+          placeholder="Confirm Password"
+          value={confirmPassword}
+          onChange={(e) => setConfirmPassword(e.target.value)}
+          className={confirmPassword.length > 0 ? (passwordsMatch ? "match-valid" : "match-invalid") : ""}
+          required
+        />
 
-      return (
-        <div className="sign-in">
-          <form onSubmit={handleSubmit} className="login-form">
-                <h3>Sign-Up</h3>
-             <h3>Create new account</h3>
-             <p></p>
-            {/* Email */}
-            <input
-              type="email"
-              placeholder="Email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className={email.length > 0 ? (isEmailValid ? "input-valid" : "input-invalid") : ""}
-              required
-            />
+        {submitted && confirmPassword.length > 0 && (
+          <p className={passwordsMatch ? "match-valid" : "match-invalid"}>
+            {passwordsMatch ? "✓ Passwords match" : "Passwords do not match"}
+          </p>
+        )}
 
+        <button type="submit" disabled={(!passwordsMatch || loading) && submitted}>
+          {loading ? "Creating Account..." : "Sign Up"}
+        </button>
+      </form>
 
-
-            {/* Password */}
-            <input
-              type="password"
-              placeholder="Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className={password.length > 0 ? (isPasswordValid ? "input-valid" : "input-invalid") : ""}
-              required
-            />
-
-
-
-            {/* Confirm Password */}
-            <input
-              type="password"
-              placeholder="Confirm Password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              className={confirmPassword.length > 0 ? (passwordsMatch ? "match-valid" : "match-invalid") : ""}
-              required
-            />
-
-
-            {submitted && confirmPassword.length > 0 && (
-              <p className={passwordsMatch ? "match-valid" : "match-invalid"}>
-                    {passwordsMatch ? "✓ Passwords match" : "Passwords do not match"}
-              </p>
-            )}
-
-
-
-            <button type="submit" disabled={(!passwordsMatch || loading )&& submitted}>
-              {loading ? "Creating Account..." : "Sign Up"}
-            </button>
-
-
-
-
-     
-
-          </form>
-
-          {message && (
-            <p className={message.includes("successfully") ? "message-success" : "message-error"}>
-              {message}
-              </p>
-            )}
-        </div>
-      );
-    }
-
-
-
-
-
-
-
-
-
-
-
-
+      {message && (
+        <p className={message.includes("successfully") ? "message-success" : "message-error"}>
+          {message}
+        </p>
+      )}
+    </div>
+  );
+}
 
 function UserCard({ user, onBack }) {
   return (
@@ -249,25 +211,13 @@ function UserCard({ user, onBack }) {
   );
 }
 
-
-
-
-
-
-
-
-
-
-
 function header() {
   return (
     <div className="app-header">
       <h1>Heartbeat</h1>
-
     </div>
   );
 }
-
 
 function LogIn() {
   return (
