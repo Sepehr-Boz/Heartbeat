@@ -6,6 +6,9 @@ import { auth } from "../config/firebase.js";
 import { createUserWithEmailAndPassword, sendEmailVerification } from "firebase/auth";
 import { UserContext } from "../App.js";
 import { enableNotifications, listenForNotifications } from "../services/notificationService";
+// Aiden: added these two imports
+import { db } from "../config/firebase";
+import { doc, setDoc } from "firebase/firestore";
 
 function SignUpPage() {
   const [email, setEmail] = useState("");
@@ -55,6 +58,18 @@ function SignUpPage() {
       const user = userCredential.user;
 
       await sendEmailVerification(user);
+
+      // Aiden: added document creation - NEW
+      await setDoc(doc(db, "users", user.uid), {
+        username: email.split("@")[0],
+        profile: {},
+        preferences: {
+          darkMode: false,
+          trackSteps: true,
+          trackHeartRate: true,
+          trackStairsClimbed: false
+        }
+      });
 
       // Enable notifications - NEW CODE
       const token = await enableNotifications(user.uid);
