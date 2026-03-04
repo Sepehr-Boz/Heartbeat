@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { auth, db } from "../config/firebase";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { updateEmail, updatePassword } from "firebase/auth";
+import IsUserLoggedIn from "../utls/IsUserLoggedIn";
 import "./css/Settings.css";
 
 function SettingsPage() {
@@ -28,6 +29,15 @@ function SettingsPage() {
 
   // Load user data from Firestore
   useEffect(() => {
+    if (!IsUserLoggedIn()){
+      navigate("/login");
+      return;
+    }
+    else{
+      // TODO: set cookies and UserContext 
+    }
+
+
     const loadUserData = async () => {
       if (!currentUser) {
         // User not logged in, just use default values

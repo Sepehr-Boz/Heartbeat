@@ -1,10 +1,11 @@
 import './css/LoginPage.css';
-import { useContext, useState } from 'react';
+import { useContext, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { auth } from "../config/firebase";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { UserContext } from '../App';
 import Cookies from 'universal-cookie';
+import IsUserLoggedIn from '../utls/IsUserLoggedIn';
 
 function LoginPage() {
   const navigate = useNavigate();
@@ -71,6 +72,12 @@ function LoginPage() {
   };
 
 
+  useEffect(() => {
+    if (IsUserLoggedIn()){
+      navigate("/welcome");
+      return;
+    }
+  }, []);
 
   return (
     <div className="App ">

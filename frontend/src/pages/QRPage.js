@@ -1,7 +1,9 @@
-
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import NavBar from "../components/NavBar";
 import TitleBar from "../components/TitleBar";
 import {QRCodeCanvas} from "qrcode.react";
+import IsUserLoggedIn from "../utls/IsUserLoggedIn";
 
 import "./css/QRPage.css";
 
@@ -14,6 +16,21 @@ function QRPage(){
     };
 
     const qrValue = JSON.stringify(userData);
+
+    const navigate = useNavigate();
+
+
+    useEffect(() => {
+        if (!IsUserLoggedIn()){
+            navigate("/login");
+            return;
+        }
+        else{
+            // TODO: set cookies and UserContext
+        }
+    }, []);
+
+
     return (
         <div className="qrpage">
             <div id="qrpage-components">

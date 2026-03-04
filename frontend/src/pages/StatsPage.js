@@ -1,5 +1,5 @@
 import { useEffect, useState} from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import TitleBar from "../components/TitleBar";
 import NavBar from "../components/NavBar";
 import Divider from "../components/Divider";
@@ -12,6 +12,7 @@ import {
   ModuleRegistry,
   NumberAxisModule,
 } from "ag-charts-community";
+import IsUserLoggedIn from "../utls/IsUserLoggedIn";
 
 
 import "./css/StatsPage.css";
@@ -83,6 +84,7 @@ const heartrateColors = {
  * - *bool* showYearly
  */
 function StatsPage({route}){
+    const navigate = useNavigate();
     const location = useLocation();
     const category = location.state.category;
 
@@ -443,6 +445,15 @@ function StatsPage({route}){
 
 
     useEffect(() => {
+      if (!IsUserLoggedIn()){
+        navigate("/login");
+        return;
+      }
+      else{
+        // TODO: set cookies and UserContext
+      }
+
+
       if (showDaily) fetchDailyData();
       if (showWeekly) fetchWeeklyData();
       if (showMonthly) fetchMonthlyData();

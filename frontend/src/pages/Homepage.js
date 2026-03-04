@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from "react-router-dom";
 import TitleBar from "../components/TitleBar";
 import NavBar from "../components/NavBar";
 import Divider from "../components/Divider";
+import IsUserLoggedIn from '../utls/IsUserLoggedIn';
 
 import fireIcon from "./Fire.svg";
 import heartbeatIcon from "./Heartbeat.svg";
@@ -18,6 +19,17 @@ function CategoryButton({text, category, icon, colour}){
     // TODO: based on colour flip the colours of the icon so that the white lines become the colour and the inside/transparent area
     // TODO: becomes white
     let navigate = useNavigate();
+
+    useEffect(() => {
+        if (!IsUserLoggedIn()){
+            navigate("/login");
+            return;
+        }
+        else{
+            // TODO: set the cookies and UserContext
+        }
+    }, []);
+
     return (
     <div className='category-button' style={{backgroundColor: colour}}
     onClick={() => {

@@ -10,6 +10,8 @@ import { enableNotifications, listenForNotifications } from "../services/notific
 import { db } from "../config/firebase";
 import { doc, setDoc } from "firebase/firestore";
 
+import IsUserLoggedIn from "../utls/IsUserLoggedIn.js";
+
 function SignUpPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -24,6 +26,11 @@ function SignUpPage() {
 
   // Listen for notifications
   useEffect(() => {
+    if (IsUserLoggedIn()){
+      navigate("/welcome");
+      return;
+    }
+
     listenForNotifications((payload) => {
       console.log('Notification received!', payload);
     });

@@ -2,6 +2,7 @@ import "./css/Profile.css";
 import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { UserContext } from "../App";
+import IsUserLoggedIn from "../utls/IsUserLoggedIn";
 
 import { auth, db } from "../config/firebase";
 import { doc, getDoc } from "firebase/firestore";
@@ -20,6 +21,15 @@ function ProfilePage() {
         const [username, setUsername] = useState("Loading...");
 
         useEffect(() => {
+            if (!IsUserLoggedIn()){
+                navigate("/login");
+                return;
+            }
+            else{
+                // TODO: set cookies and UserContext
+            }
+
+
             const loadUserData = async () => {
                 const currentUser = auth.currentUser;
 
