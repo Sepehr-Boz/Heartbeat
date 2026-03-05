@@ -6,9 +6,10 @@ import { auth } from "../config/firebase.js";
 import { createUserWithEmailAndPassword, sendEmailVerification } from "firebase/auth";
 import { UserContext } from "../App.js";
 import { enableNotifications, listenForNotifications } from "../services/notificationService";
-// Aiden: added these two imports
+// Aiden: added these imports
 import { db } from "../config/firebase";
 import { doc, setDoc } from "firebase/firestore";
+import defaultProfilePic from "../components/images/default-profile-pic.png"
 
 function SignUpPage() {
   const [email, setEmail] = useState("");
@@ -62,6 +63,7 @@ function SignUpPage() {
       // Aiden: added document creation - NEW
       await setDoc(doc(db, "users", user.uid), {
         username: email.split("@")[0],
+        profilePic: defaultProfilePic,
         profile: {},
         preferences: {
           darkMode: false,

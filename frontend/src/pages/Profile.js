@@ -10,14 +10,15 @@ import NavBar from "../components/NavBar";
 import TitleBar from "../components/TitleBar";
 import Cookies from "universal-cookie";
 
+import defaultProfilePic from "../components/images/default-profile-pic.png";
+
 
 function ProfilePage() {
         const {user, setUser} = useContext(UserContext);
         const navigate = useNavigate();
-        // these are just placeholders to be changed depending on users profile pic and name
-        const profileImage = "Image.jpg";
 
         const [username, setUsername] = useState("Loading...");
+        const [profilePic, setProfilePic] = useState(defaultProfilePic);
 
         useEffect(() => {
             const loadUserData = async () => {
@@ -35,8 +36,8 @@ function ProfilePage() {
                     if(userDoc.exists()) {
                         const userData = userDoc.data();
                         setUsername(userData.username || "Username");
-
-                        // enter profile pic stuff here later
+                        setProfilePic(userData.profilePic || defaultProfilePic);
+                        
                     }
                 } catch (error) {
                 console.error("Error loading profile:" + error);
@@ -49,7 +50,7 @@ function ProfilePage() {
         return (
         <div className="profile">
             <div className="profile-header">
-            <img src={profileImage} alt="Profile" className="profile-pic"/>
+            <img src={profilePic} alt="Profile" className="profile-pic"/>
             <h2 className="username">{username}</h2>
             </div>
             <div className="options-bar">
