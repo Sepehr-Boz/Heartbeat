@@ -3,7 +3,8 @@ import { useNavigate } from "react-router-dom";
 import TitleBar from "../components/TitleBar";
 import NavBar from "../components/NavBar";
 import Divider from "../components/Divider";
-import IsUserLoggedIn from '../utls/IsUserLoggedIn';
+import { IsUserLoggedIn, IsAuthOutOfDate } from '../utls/UserChecks';
+import { auth } from '../config/firebase';
 
 import fireIcon from "./Fire.svg";
 import heartbeatIcon from "./Heartbeat.svg";
@@ -21,13 +22,23 @@ function CategoryButton({text, category, icon, colour}){
     let navigate = useNavigate();
 
     useEffect(() => {
-        if (!IsUserLoggedIn()){
-            navigate("/login");
-            return;
-        }
-        else{
-            // TODO: set the cookies and UserContext
-        }
+        const checkAuth = async () => {
+            const loggedIn = await IsUserLoggedIn();
+            const outOfDate = await IsAuthOutOfDate();
+
+            if (!loggedIn){
+                navigate("/login");
+            }
+            else if (outOfDate){
+                await auth.signOut();
+                navigate("/login");
+            }
+            else{
+                auth.currentUser.reload();
+            }
+        };
+
+        checkAuth();        
     }, []);
 
     return (

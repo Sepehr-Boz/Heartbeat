@@ -12,7 +12,8 @@ import {
   ModuleRegistry,
   NumberAxisModule,
 } from "ag-charts-community";
-import IsUserLoggedIn from "../utls/IsUserLoggedIn";
+import { IsUserLoggedIn, IsAuthOutOfDate } from "../utls/UserChecks";
+import { auth } from "../config/firebase";
 
 
 import "./css/StatsPage.css";
@@ -445,14 +446,23 @@ function StatsPage({route}){
 
 
     useEffect(() => {
-      if (!IsUserLoggedIn()){
-        navigate("/login");
-        return;
-      }
-      else{
-        // TODO: set cookies and UserContext
-      }
+      const checkAuth = async () => {
+          const loggedIn = await IsUserLoggedIn();
+          const outOfDate = await IsAuthOutOfDate();
 
+          if (!loggedIn){
+              navigate("/login");
+          }
+          else if (outOfDate){
+              await auth.signOut();
+              navigate("/login");
+          }
+          else{
+              auth.currentUser.reload();
+          }
+      };
+
+      checkAuth();     
 
       if (showDaily) fetchDailyData();
       if (showWeekly) fetchWeeklyData();

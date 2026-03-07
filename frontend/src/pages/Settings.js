@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { auth, db } from "../config/firebase";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { updateEmail, updatePassword } from "firebase/auth";
-import IsUserLoggedIn from "../utls/IsUserLoggedIn";
+import { IsUserLoggedIn, IsAuthOutOfDate } from "../utls/UserChecks";
 import "./css/Settings.css";
 
 function SettingsPage() {
@@ -29,14 +29,23 @@ function SettingsPage() {
 
   // Load user data from Firestore
   useEffect(() => {
-    if (!IsUserLoggedIn()){
-      navigate("/login");
-      return;
-    }
-    else{
-      // TODO: set cookies and UserContext 
-    }
+    const checkAuth = async () => {
+        const loggedIn = await IsUserLoggedIn();
+        const outOfDate = await IsAuthOutOfDate();
 
+        if (!loggedIn){
+            navigate("/login");
+        }
+        else if (outOfDate){
+            await auth.signOut();
+            navigate("/login");
+        }
+        else{
+            auth.currentUser.reload();
+        }
+    };
+
+    checkAuth();     
 
     const loadUserData = async () => {
       if (!currentUser) {

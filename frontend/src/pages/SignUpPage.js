@@ -1,16 +1,13 @@
 import "./css/SignUpPage.css";
 import { useState, useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import Cookies from "universal-cookie";
-import { auth } from "../config/firebase.js";
 import { createUserWithEmailAndPassword, sendEmailVerification } from "firebase/auth";
-import { UserContext } from "../App.js";
 import { enableNotifications, listenForNotifications } from "../services/notificationService";
 // Aiden: added these two imports
-import { db } from "../config/firebase";
+import { db, auth } from "../config/firebase";
 import { doc, setDoc } from "firebase/firestore";
 
-import IsUserLoggedIn from "../utls/IsUserLoggedIn.js";
+import { IsUserLoggedIn, IsAuthOutOfDate } from "../utls/UserChecks.js";
 
 function SignUpPage() {
   const [email, setEmail] = useState("");
@@ -21,15 +18,23 @@ function SignUpPage() {
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
-  const {user, setUser} = useContext(UserContext);
   const navigate = useNavigate();
 
   // Listen for notifications
   useEffect(() => {
-    if (IsUserLoggedIn()){
-      navigate("/welcome");
-      return;
-    }
+    const checkAuth = async () => {
+        const loggedIn = await IsUserLoggedIn();
+        const outOfDate = await IsAuthOutOfDate();
+
+        if (outOfDate){
+          await auth.signOut();
+        }
+        else if (loggedIn){
+          navigate("/welcome");
+        }
+    };
+
+    checkAuth();           
 
     listenForNotifications((payload) => {
       console.log('Notification received!', payload);
@@ -92,17 +97,6 @@ function SignUpPage() {
       setEmail("");
       setPassword("");
       setConfirmPassword("");
-
-      // Set cookies and navigate
-      const expiration = new Date();
-      expiration.setDate(expiration.getDate() + 7);
-      const id = userCredential.user.uid;
-      const accessToken = userCredential.user.accessToken;
-
-      const cookies = new Cookies(null, {path:"/"});
-      cookies.set("id", id, {expires:expiration});
-      cookies.set("acc_token", accessToken, {expires:expiration});
-      setUser({id:id, accessToken:accessToken});
 
       navigate("/home");
       
@@ -245,7 +239,7 @@ function LogIn() {
   return (
     <div className="login-form">
       <h3>Click here to Log in</h3>
-      <a href="/Login">
+      <a href="/login">
         <button type="button">Log In</button>
       </a>
     </div>  

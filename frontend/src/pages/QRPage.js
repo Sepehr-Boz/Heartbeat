@@ -3,7 +3,8 @@ import { useNavigate } from "react-router-dom";
 import NavBar from "../components/NavBar";
 import TitleBar from "../components/TitleBar";
 import {QRCodeCanvas} from "qrcode.react";
-import IsUserLoggedIn from "../utls/IsUserLoggedIn";
+import { IsUserLoggedIn, IsAuthOutOfDate } from "../utls/UserChecks";
+import { auth } from "../config/firebase";
 
 import "./css/QRPage.css";
 
@@ -21,13 +22,23 @@ function QRPage(){
 
 
     useEffect(() => {
-        if (!IsUserLoggedIn()){
-            navigate("/login");
-            return;
-        }
-        else{
-            // TODO: set cookies and UserContext
-        }
+        const checkAuth = async () => {
+            const loggedIn = await IsUserLoggedIn();
+            const outOfDate = await IsAuthOutOfDate();
+
+            if (!loggedIn){
+                navigate("/login");
+            }
+            else if (outOfDate){
+                await auth.signOut();
+                navigate("/login");
+            }
+            else{
+                auth.currentUser.reload();
+            }
+        };
+
+        checkAuth();       
     }, []);
 
 
