@@ -4,7 +4,7 @@ import { getAnalytics } from "firebase/analytics";
 import { getAuth, setPersistence, browserLocalPersistence } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 import { getMessaging } from "firebase/messaging";
-
+import { getStorage } from "firebase/storage";
 
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
@@ -34,5 +34,6 @@ export const auth = getAuth(app);
 setPersistence(auth, browserLocalPersistence);
 export const db = getFirestore(app);
 export const messaging = getMessaging(app);
+export const storage = getStorage(app);
 
 

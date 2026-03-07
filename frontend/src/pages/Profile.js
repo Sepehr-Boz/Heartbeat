@@ -1,21 +1,24 @@
 import "./css/Profile.css";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { IsUserLoggedIn, IsAuthOutOfDate } from "../utls/UserChecks";
 
-import { auth, db } from "../config/firebase";
-import { doc, getDoc } from "firebase/firestore";
+import { auth, db, storage } from "../config/firebase";
+import { doc, getDoc, updateDoc } from "firebase/firestore";
+import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
 import NavBar from "../components/NavBar";
 import TitleBar from "../components/TitleBar";
 
+import defaultProfilePic from "../components/images/default-profile-pic.png";
+
 
 function ProfilePage() {
         const navigate = useNavigate();
-        // these are just placeholders to be changed depending on users profile pic and name
-        const profileImage = "Image.jpg";
 
         const [username, setUsername] = useState("Loading...");
+        const [profilePic, setProfilePic] = useState(defaultProfilePic);
+        const fileInputRef = useRef(null);
 
         useEffect(() => {
             const checkAuth = async () => {
@@ -52,21 +55,58 @@ function ProfilePage() {
                     if(userDoc.exists()) {
                         const userData = userDoc.data();
                         setUsername(userData.username || "Username");
-
-                        // enter profile pic stuff here later
+                        setProfilePic(userData.profilePic || defaultProfilePic);
+                        
                     }
                 } catch (error) {
-                console.error("Error loading profile:" + error);
-                setUsername("Username");
+                    console.error("Error loading profile:" + error);
+                    setUsername("Username");
                 } 
             };
             loadUserData();
         }, []);
 
+        // allow users to click profile pic to change image
+        const handleProfileClick = () => {
+            fileInputRef.current.click();
+        };
+
+        // allow selection of file for profile pic
+        const handleFile = async(event) => {
+            const file = event.target.files[0];
+            if(!file) return;
+            try {
+                const currentUser = auth.currentUser;
+                if (!currentUser) throw new Error("Not logged in");
+
+                const fileExtension = file.name.split('.').pop();
+                const storageReference = ref(storage, `profile-pics/${currentUser.uid}.${fileExtension}`);
+                await uploadBytes(storageReference, file);
+                const imageUrl = await getDownloadURL(storageReference);
+
+                // update profile pic in database
+                const userDocRef = doc(db, "users", currentUser.uid);
+                await updateDoc(userDocRef, { profilePic: imageUrl });
+
+                setProfilePic(imageUrl);
+            } catch(error) {
+                console.error("Error changing profile pic:", error);
+            }
+            
+            
+        };
+
         return (
         <div className="profile">
             <div className="profile-header">
-            <img src={profileImage} alt="Profile" className="profile-pic"/>
+            <img
+                src={profilePic}
+                alt="Profile"
+                className="profile-pic"
+                onClick={handleProfileClick}
+                style={{cursor: "pointer"}}
+            />
+            <input type="file" ref={fileInputRef} style={{display: "none"}} accept="image/*" onChange={handleFile} />
             <h2 className="username">{username}</h2>
             </div>
             <div className="options-bar">

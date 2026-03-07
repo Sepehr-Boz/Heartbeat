@@ -3,9 +3,10 @@ import { useState, useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { createUserWithEmailAndPassword, sendEmailVerification } from "firebase/auth";
 import { enableNotifications, listenForNotifications } from "../services/notificationService";
-// Aiden: added these two imports
+// Aiden: added these imports
 import { db, auth } from "../config/firebase";
 import { doc, setDoc } from "firebase/firestore";
+import defaultProfilePic from "../components/images/default-profile-pic.png"
 
 import { IsUserLoggedIn, IsAuthOutOfDate } from "../utls/UserChecks.js";
 
@@ -74,6 +75,7 @@ function SignUpPage() {
       // Aiden: added document creation - NEW
       await setDoc(doc(db, "users", user.uid), {
         username: email.split("@")[0],
+        profilePic: defaultProfilePic,
         profile: {},
         preferences: {
           darkMode: false,
