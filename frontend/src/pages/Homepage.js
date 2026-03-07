@@ -1,8 +1,10 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from "react-router-dom";
 import TitleBar from "../components/TitleBar";
 import NavBar from "../components/NavBar";
 import Divider from "../components/Divider";
+import { IsUserLoggedIn, IsAuthOutOfDate } from '../utls/UserChecks';
+import { auth } from '../config/firebase';
 
 import fireIcon from "./Fire.svg";
 import heartbeatIcon from "./Heartbeat.svg";
@@ -18,6 +20,27 @@ function CategoryButton({text, category, icon, colour}){
     // TODO: based on colour flip the colours of the icon so that the white lines become the colour and the inside/transparent area
     // TODO: becomes white
     let navigate = useNavigate();
+
+    useEffect(() => {
+        const checkAuth = async () => {
+            const loggedIn = await IsUserLoggedIn();
+            const outOfDate = await IsAuthOutOfDate();
+
+            if (!loggedIn){
+                navigate("/login");
+            }
+            else if (outOfDate){
+                await auth.signOut();
+                navigate("/login");
+            }
+            else{
+                auth.currentUser.reload();
+            }
+        };
+
+        checkAuth();        
+    }, []);
+
     return (
     <div className='category-button' style={{backgroundColor: colour}}
     onClick={() => {

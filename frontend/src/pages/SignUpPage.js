@@ -1,11 +1,19 @@
 import "./css/SignUpPage.css";
 import { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
-import Cookies from "universal-cookie";
-import { auth } from "../config/firebase.js";
 import { createUserWithEmailAndPassword, sendEmailVerification } from "firebase/auth";
+<<<<<<< HEAD
 import { UserContext } from "../App.js";
 import { toast } from 'react-toastify'; // Add this import
+=======
+import { enableNotifications, listenForNotifications } from "../services/notificationService";
+// Aiden: added these imports
+import { db, auth } from "../config/firebase";
+import { doc, setDoc } from "firebase/firestore";
+import defaultProfilePic from "../components/images/default-profile-pic.png"
+
+import { IsUserLoggedIn, IsAuthOutOfDate } from "../utls/UserChecks.js";
+>>>>>>> 384888d0fd5c7d870c54bbeba81ff03271124251
 
 function SignUpPage() {
   const [email, setEmail] = useState("");
@@ -16,9 +24,32 @@ function SignUpPage() {
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
-  const {user, setUser} = useContext(UserContext);
   const navigate = useNavigate();
 
+<<<<<<< HEAD
+=======
+  // Listen for notifications
+  useEffect(() => {
+    const checkAuth = async () => {
+        const loggedIn = await IsUserLoggedIn();
+        const outOfDate = await IsAuthOutOfDate();
+
+        if (outOfDate){
+          await auth.signOut();
+        }
+        else if (loggedIn){
+          navigate("/welcome");
+        }
+    };
+
+    checkAuth();           
+
+    listenForNotifications((payload) => {
+      console.log('Notification received!', payload);
+    });
+  }, []);
+
+>>>>>>> 384888d0fd5c7d870c54bbeba81ff03271124251
   const passwordsMatch = password === confirmPassword;
   const isPasswordValid = password.length >= 8;
   const isEmailValid = email.includes('@') && email.includes('.');
@@ -54,6 +85,30 @@ function SignUpPage() {
 
       await sendEmailVerification(user);
 
+<<<<<<< HEAD
+=======
+      // Aiden: added document creation - NEW
+      await setDoc(doc(db, "users", user.uid), {
+        username: email.split("@")[0],
+        profilePic: defaultProfilePic,
+        profile: {},
+        preferences: {
+          darkMode: false,
+          trackSteps: true,
+          trackHeartRate: true,
+          trackStairsClimbed: false
+        }
+      });
+
+      // Enable notifications - NEW CODE
+      const token = await enableNotifications(user.uid);
+      if (token) {
+        console.log('Notifications enabled successfully!');
+      } else {
+        console.log('User declined notifications');
+      }
+
+>>>>>>> 384888d0fd5c7d870c54bbeba81ff03271124251
       setSignedUpUser({ email: user.email, uid: user.uid });
       setMessage("Account created successfully! Please verify your email.");
       
@@ -64,6 +119,7 @@ function SignUpPage() {
       setPassword("");
       setConfirmPassword("");
 
+<<<<<<< HEAD
       const expiration = new Date();
       expiration.setDate(expiration.getDate() + 7);
       const id = userCredential.user.uid;
@@ -74,6 +130,8 @@ function SignUpPage() {
       cookies.set("acc_token", accessToken, {expires:expiration});
       setUser({id:id, accessToken:accessToken});
 
+=======
+>>>>>>> 384888d0fd5c7d870c54bbeba81ff03271124251
       navigate("/home");
       
     } catch (error) {
@@ -233,7 +291,7 @@ function LogIn() {
   return (
     <div className="login-form">
       <h3>Click here to Log in</h3>
-      <a href="/Login">
+      <a href="/login">
         <button type="button">Log In</button>
       </a>
     </div>  

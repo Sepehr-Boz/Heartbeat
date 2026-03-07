@@ -1,10 +1,9 @@
 import './css/LoginPage.css';
-import { useContext, useState } from 'react';
+import { useContext, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { auth } from "../config/firebase";
 import { signInWithEmailAndPassword } from "firebase/auth";
-import { UserContext } from '../App';
-import Cookies from 'universal-cookie';
+import { IsUserLoggedIn, IsAuthOutOfDate } from '../utls/UserChecks';
 
 function LoginPage() {
   const navigate = useNavigate();
@@ -13,8 +12,7 @@ function LoginPage() {
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
-  const {user, setUser} = useContext(UserContext);
-  // const [user, setUser] = useState(null);
+  const [user, setUser] = useState(null);
  
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -29,17 +27,6 @@ function LoginPage() {
       // setUser(loggedInUser);
       // console.log(user);
       setMessage("Login successful");
-
-      // when logged in then set the cookie
-      const expiration = new Date();
-      expiration.setDate(expiration.getDate() + 7);
-      const id = userCredential.user.uid;
-      const accToken = userCredential.user.accessToken;
-
-      const cookies = new Cookies(null, {path:"/"});
-      cookies.set("id", id, {expires:expiration});
-      cookies.set("acc_token", accToken, {expires:expiration});
-      setUser({id: id, accessToken: accToken});
 
       // if successful then navigate to the home page
       navigate("/home");
@@ -71,6 +58,21 @@ function LoginPage() {
   };
 
 
+  useEffect(() => {
+    const checkAuth = async () => {
+        const loggedIn = await IsUserLoggedIn();
+        const outOfDate = await IsAuthOutOfDate();
+
+        if (outOfDate){
+          await auth.signOut();
+        }
+        else if (loggedIn){
+          navigate("/welcome");
+        }
+    };
+
+    checkAuth();     
+  }, []);
 
   return (
     <div className="App ">

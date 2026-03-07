@@ -1,5 +1,5 @@
 import { useEffect, useState} from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import TitleBar from "../components/TitleBar";
 import NavBar from "../components/NavBar";
 import Divider from "../components/Divider";
@@ -12,6 +12,8 @@ import {
   ModuleRegistry,
   NumberAxisModule,
 } from "ag-charts-community";
+import { IsUserLoggedIn, IsAuthOutOfDate } from "../utls/UserChecks";
+import { auth } from "../config/firebase";
 
 
 import "./css/StatsPage.css";
@@ -83,6 +85,7 @@ const heartrateColors = {
  * - *bool* showYearly
  */
 function StatsPage({route}){
+    const navigate = useNavigate();
     const location = useLocation();
     const category = location.state.category;
 
@@ -443,6 +446,24 @@ function StatsPage({route}){
 
 
     useEffect(() => {
+      const checkAuth = async () => {
+          const loggedIn = await IsUserLoggedIn();
+          const outOfDate = await IsAuthOutOfDate();
+
+          if (!loggedIn){
+              navigate("/login");
+          }
+          else if (outOfDate){
+              await auth.signOut();
+              navigate("/login");
+          }
+          else{
+              auth.currentUser.reload();
+          }
+      };
+
+      checkAuth();     
+
       if (showDaily) fetchDailyData();
       if (showWeekly) fetchWeeklyData();
       if (showMonthly) fetchMonthlyData();
