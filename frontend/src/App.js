@@ -44,6 +44,7 @@ function App() {
           <Route path='/home' element={<HomePage/>}></Route>
           <Route path='/stats' element={<StatsPage/>}></Route>
         </Routes>
+        <ToastContainer />
     </div>
   );
 }

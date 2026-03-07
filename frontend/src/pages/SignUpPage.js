@@ -1,19 +1,22 @@
 import "./css/SignUpPage.css";
-import { useState, useContext } from "react";
+import { useState, useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { createUserWithEmailAndPassword, sendEmailVerification } from "firebase/auth";
-<<<<<<< HEAD
-import { UserContext } from "../App.js";
-import { toast } from 'react-toastify'; // Add this import
-=======
 import { enableNotifications, listenForNotifications } from "../services/notificationService";
-// Aiden: added these imports
+
+
+
 import { db, auth } from "../config/firebase";
 import { doc, setDoc } from "firebase/firestore";
 import defaultProfilePic from "../components/images/default-profile-pic.png"
 
 import { IsUserLoggedIn, IsAuthOutOfDate } from "../utls/UserChecks.js";
->>>>>>> 384888d0fd5c7d870c54bbeba81ff03271124251
+
+
+//notification import
+import { toast } from 'react-toastify'; 
+
+
 
 function SignUpPage() {
   const [email, setEmail] = useState("");
@@ -26,8 +29,6 @@ function SignUpPage() {
 
   const navigate = useNavigate();
 
-<<<<<<< HEAD
-=======
   // Listen for notifications
   useEffect(() => {
     const checkAuth = async () => {
@@ -44,20 +45,18 @@ function SignUpPage() {
 
     checkAuth();           
 
-    listenForNotifications((payload) => {
-      console.log('Notification received!', payload);
-    });
   }, []);
 
->>>>>>> 384888d0fd5c7d870c54bbeba81ff03271124251
   const passwordsMatch = password === confirmPassword;
   const isPasswordValid = password.length >= 8;
   const isEmailValid = email.includes('@') && email.includes('.');
 
   // Add this test function
-  const testNotification = () => {
-    toast("Test notification from SignUpPage! 🎉");
-  };
+  // const testNotification = () => {toast("Test notification from SignUpPage!");};
+
+
+
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -67,6 +66,7 @@ function SignUpPage() {
 
     if (!passwordsMatch) {
       setMessage("Passwords do not match.");
+      toast.error("Passwords do not match.");
       setLoading(false);
       return;
     } else {
@@ -75,6 +75,8 @@ function SignUpPage() {
 
     if (!isPasswordValid) {
       setMessage("Password must be at least 8 characters.");
+      toast.error("Password is too weak.");
+
       setLoading(false);
       return;
     }
@@ -85,8 +87,6 @@ function SignUpPage() {
 
       await sendEmailVerification(user);
 
-<<<<<<< HEAD
-=======
       // Aiden: added document creation - NEW
       await setDoc(doc(db, "users", user.uid), {
         username: email.split("@")[0],
@@ -108,30 +108,16 @@ function SignUpPage() {
         console.log('User declined notifications');
       }
 
->>>>>>> 384888d0fd5c7d870c54bbeba81ff03271124251
       setSignedUpUser({ email: user.email, uid: user.uid });
       setMessage("Account created successfully! Please verify your email.");
       
-      // Add success notification
-      toast.success("Account created successfully! 🎉");
+      // Add test notification
+      toast.success("Account created successfully");
       
       setEmail("");
       setPassword("");
       setConfirmPassword("");
 
-<<<<<<< HEAD
-      const expiration = new Date();
-      expiration.setDate(expiration.getDate() + 7);
-      const id = userCredential.user.uid;
-      const accessToken = userCredential.user.accessToken;
-
-      const cookies = new Cookies(null, {path:"/"});
-      cookies.set("id", id, {expires:expiration});
-      cookies.set("acc_token", accessToken, {expires:expiration});
-      setUser({id:id, accessToken:accessToken});
-
-=======
->>>>>>> 384888d0fd5c7d870c54bbeba81ff03271124251
       navigate("/home");
       
     } catch (error) {
@@ -139,6 +125,7 @@ function SignUpPage() {
         case 'auth/email-already-in-use':
           setMessage("This email is already registered.");
           toast.error("This email is already registered."); // Add error notification
+
           break;
         case 'auth/invalid-email':
           setMessage("Invalid email address.");
@@ -178,7 +165,6 @@ function SignUpPage() {
             isEmailValid={isEmailValid}
             isPasswordValid={isPasswordValid}
             submitted={submitted}
-            testNotification={testNotification} // Pass the function down
           />
         )}
         <LogIn />
@@ -201,7 +187,6 @@ function SignUpDetails({
   isEmailValid,
   isPasswordValid,
   submitted,
-  testNotification // Receive the function
 }) {
   return (
     <div className="sign-in">
@@ -237,13 +222,9 @@ function SignUpDetails({
           required
         />
 
-        {submitted && confirmPassword.length > 0 && (
-          <p className={passwordsMatch ? "match-valid" : "match-invalid"}>
-            {passwordsMatch ? "✓ Passwords match" : "Passwords do not match"}
-          </p>
-        )}
 
-        <button type="submit" disabled={(!passwordsMatch || loading) && submitted} onClick={testNotification}>
+
+        <button type="submit" disabled={(!passwordsMatch || loading) && submitted}>
           {loading ? "Creating Account..." : "Sign Up"}
         </button>
 
