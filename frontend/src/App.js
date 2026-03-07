@@ -10,6 +10,8 @@ import ProfilePage from './pages/Profile';
 import SettingsPage from './pages/Settings';
 import StatsPage from './pages/StatsPage';
 import ScanQR from './pages/ScanQR';
+import { ToastContainer, toast } from 'react-toastify';
+
 
 
 // ! UserContext should be saved as an Object of {id: uuid, accessToken: accessToken}
@@ -19,6 +21,9 @@ export const UserContext = createContext();
 function App() {
   const [user, setUser] = useState(null);
   const [userRemembered, setUserRemembered] = useState(false);
+  
+  //test notification function
+  const notify = () => toast("Wow so easy!");
   
   useEffect(() => {
     // check if has a cookie already from previous logins
@@ -60,6 +65,9 @@ function App() {
           <Route path='/stats' element={<StatsPage/>}></Route>
         </Routes>
       </UserContext.Provider>
+      <div>
+        <ToastContainer />
+      </div>
     </div>
   );
 }

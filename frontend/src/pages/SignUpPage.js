@@ -1,14 +1,11 @@
 import "./css/SignUpPage.css";
-import { useState, useContext, useEffect } from "react";
+import { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import Cookies from "universal-cookie";
 import { auth } from "../config/firebase.js";
 import { createUserWithEmailAndPassword, sendEmailVerification } from "firebase/auth";
 import { UserContext } from "../App.js";
-import { enableNotifications, listenForNotifications } from "../services/notificationService";
-// Aiden: added these two imports
-import { db } from "../config/firebase";
-import { doc, setDoc } from "firebase/firestore";
+import { toast } from 'react-toastify'; // Add this import
 
 function SignUpPage() {
   const [email, setEmail] = useState("");
@@ -22,16 +19,14 @@ function SignUpPage() {
   const {user, setUser} = useContext(UserContext);
   const navigate = useNavigate();
 
-  // Listen for notifications
-  useEffect(() => {
-    listenForNotifications((payload) => {
-      console.log('Notification received!', payload);
-    });
-  }, []);
-
   const passwordsMatch = password === confirmPassword;
   const isPasswordValid = password.length >= 8;
   const isEmailValid = email.includes('@') && email.includes('.');
+
+  // Add this test function
+  const testNotification = () => {
+    toast("Test notification from SignUpPage! 🎉");
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -59,34 +54,16 @@ function SignUpPage() {
 
       await sendEmailVerification(user);
 
-      // Aiden: added document creation - NEW
-      await setDoc(doc(db, "users", user.uid), {
-        username: email.split("@")[0],
-        profile: {},
-        preferences: {
-          darkMode: false,
-          trackSteps: true,
-          trackHeartRate: true,
-          trackStairsClimbed: false
-        }
-      });
-
-      // Enable notifications - NEW CODE
-      const token = await enableNotifications(user.uid);
-      if (token) {
-        console.log('Notifications enabled successfully!');
-      } else {
-        console.log('User declined notifications');
-      }
-
       setSignedUpUser({ email: user.email, uid: user.uid });
       setMessage("Account created successfully! Please verify your email.");
+      
+      // Add success notification
+      toast.success("Account created successfully! 🎉");
       
       setEmail("");
       setPassword("");
       setConfirmPassword("");
 
-      // Set cookies and navigate
       const expiration = new Date();
       expiration.setDate(expiration.getDate() + 7);
       const id = userCredential.user.uid;
@@ -103,15 +80,19 @@ function SignUpPage() {
       switch (error.code) {
         case 'auth/email-already-in-use':
           setMessage("This email is already registered.");
+          toast.error("This email is already registered."); // Add error notification
           break;
         case 'auth/invalid-email':
           setMessage("Invalid email address.");
+          toast.error("Invalid email address.");
           break;
         case 'auth/weak-password':
           setMessage("Password is too weak.");
+          toast.error("Password is too weak.");
           break;
         default:
           setMessage("Error: " + error.message);
+          toast.error("Error: " + error.message);
       }
     } finally {
       setLoading(false);
@@ -139,6 +120,7 @@ function SignUpPage() {
             isEmailValid={isEmailValid}
             isPasswordValid={isPasswordValid}
             submitted={submitted}
+            testNotification={testNotification} // Pass the function down
           />
         )}
         <LogIn />
@@ -160,7 +142,8 @@ function SignUpDetails({
   loading,
   isEmailValid,
   isPasswordValid,
-  submitted
+  submitted,
+  testNotification // Receive the function
 }) {
   return (
     <div className="sign-in">
@@ -202,9 +185,21 @@ function SignUpDetails({
           </p>
         )}
 
-        <button type="submit" disabled={(!passwordsMatch || loading) && submitted}>
+        <button type="submit" disabled={(!passwordsMatch || loading) && submitted} onClick={testNotification}>
           {loading ? "Creating Account..." : "Sign Up"}
         </button>
+
+
+        {/* Add Test Button */}
+        {/* <button 
+          type="button" 
+          onClick={testNotification}
+          style={{ marginTop: '10px' }}
+        >
+           Test Notification
+        </button> */}
+
+        
       </form>
 
       {message && (
