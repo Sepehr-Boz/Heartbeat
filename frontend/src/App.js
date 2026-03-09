@@ -11,7 +11,7 @@ import SettingsPage from './pages/Settings';
 import StatsPage from './pages/StatsPage';
 import ScanQR from './pages/ScanQR';
 import { ToastContainer, toast } from 'react-toastify';
-
+import { DarkModeProvider } from './DarkModeContext';
 
 
 function App() {
@@ -31,7 +31,8 @@ function App() {
 
 
   return (
-    <div className="App">
+    <DarkModeProvider>
+      <div className="App">
         <Routes>
           <Route path='/' element={userRemembered ? <WelcomePage /> : <LoginPage />}></Route>
           <Route path='/login' element={<LoginPage/>}></Route>
@@ -45,7 +46,8 @@ function App() {
           <Route path='/stats' element={<StatsPage/>}></Route>
         </Routes>
         <ToastContainer />
-    </div>
+      </div>
+    </DarkModeProvider>
   );
 }
 
