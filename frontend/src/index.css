@@ -162,3 +162,56 @@ button,
 .card {
   transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
 }
+
+
+.titlebar{
+  background-color: white;
+  width: 100%;
+  height: fit-content;
+  padding-top: 1vh;
+  padding-bottom: 1vh;
+  display: grid;
+  grid-template-rows: 1fr;
+  grid-template-columns: 1fr 4fr 1fr;
+
+  align-items: center;
+  justify-items: center;
+  position: absolute;
+  top: 0px;
+
+  z-index: 10;
+  transition: background-color 0.3s ease;
+}
+
+.titlebar-title{
+  width: auto;
+  height: auto;
+  grid-column: 2;
+  font-weight: 700;
+  font-size: 2.5vh;
+  margin: 0;
+  transition: color 0.3s ease;
+}
+
+#titlebar-back-button{
+  width: auto;
+  height: auto;
+  grid-column: 1;
+  filter: brightness(0) saturate(100%);
+  transition: filter 0.3s ease;
+  cursor: pointer;
+}
+
+/* Dark Mode Styles */
+body.dark-mode .titlebar {
+  background-color: #1e1e1e;
+  border-bottom: 1px solid #333;
+}
+
+body.dark-mode .titlebar-title {
+  color: #f5f5f5;
+}
+
+body.dark-mode #titlebar-back-button {
+  filter: brightness(0) saturate(100%) invert(1);
+}
