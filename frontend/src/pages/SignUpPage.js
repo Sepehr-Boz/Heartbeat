@@ -2,7 +2,6 @@ import "./css/SignUpPage.css";
 import { useState, useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { createUserWithEmailAndPassword, sendEmailVerification } from "firebase/auth";
-import { enableNotifications, listenForNotifications } from "../services/notificationService";
 
 
 
@@ -100,13 +99,7 @@ function SignUpPage() {
         }
       });
 
-      // Enable notifications - NEW CODE
-      const token = await enableNotifications(user.uid);
-      if (token) {
-        console.log('Notifications enabled successfully!');
-      } else {
-        console.log('User declined notifications');
-      }
+
 
       setSignedUpUser({ email: user.email, uid: user.uid });
       setMessage("Account created successfully! Please verify your email.");
@@ -123,20 +116,16 @@ function SignUpPage() {
     } catch (error) {
       switch (error.code) {
         case 'auth/email-already-in-use':
-          setMessage("This email is already registered.");
           toast.error("This email is already registered."); // Add error notification
 
           break;
         case 'auth/invalid-email':
-          setMessage("Invalid email address.");
           toast.error("Invalid email address.");
           break;
         case 'auth/weak-password':
-          setMessage("Password is too weak.");
           toast.error("Password is too weak.");
           break;
         default:
-          setMessage("Error: " + error.message);
           toast.error("Error: " + error.message);
       }
     } finally {

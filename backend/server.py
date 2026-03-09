@@ -6,6 +6,11 @@ from datetime import datetime
 # import datetime
 import csv
 
+#scheduler
+from apscheduler.schedulers.background import BackgroundScheduler
+
+
+
 
 TEST_DATA_PATH = "./test-data.csv"
 STEP_INDEX = 9
@@ -76,3 +81,14 @@ def get_data(req: GetDataRequest):
             except Exception as e:
                 print(e)
                 continue
+
+
+
+
+
+
+
+# i am going to try do notifications for here on
+
+
+
