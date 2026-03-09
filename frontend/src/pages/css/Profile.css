@@ -13,12 +13,43 @@
     margin-bottom: 20px;
 }
 
+.profile-pic-container {
+    position: relative;
+    display:inline-block;
+    cursor:pointer;
+    overflow:hidden;
+}
+
 .profile-pic {
     width: 160px;
     height: 160px;
     border-radius: 50%;
     object-fit: cover;
     border: 3px solid black;
+}
+
+.profile-pic-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(0,0,0,0.5);
+  color: white;
+  font-size: 14px;
+  text-align: center;
+  padding: 4px;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  border-bottom-left-radius: 50%;
+  border-bottom-right-radius: 50%;
+}
+
+.profile-pic-container:hover .profile-pic {
+  filter: brightness(70%);
+}
+
+.profile-pic-container:hover .profile-pic-overlay {
+  opacity: 1;
 }
 
 .username {
