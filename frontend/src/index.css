@@ -11,3 +11,207 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+
+/* Global body dark mode */
+body.dark-mode {
+  background-color: #0a0a0a;
+  color: #f5f5f5;
+}
+
+/* Dark mode for all page containers */
+body.dark-mode .app-header,
+body.dark-mode .login-container,
+body.dark-mode .signup-container,
+body.dark-mode .welcome-container,
+body.dark-mode .home-container,
+body.dark-mode .profile-container,
+body.dark-mode .stats-container,
+body.dark-mode .qr-container {
+  background-color: #1e1e1e;
+  color: #f5f5f5;
+}
+
+/* Dark mode for headings */
+body.dark-mode h1,
+body.dark-mode h2,
+body.dark-mode h3,
+body.dark-mode h4,
+body.dark-mode h5,
+body.dark-mode h6 {
+  color: #f5f5f5;
+}
+
+/* Dark mode for all inputs */
+body.dark-mode input[type="text"],
+body.dark-mode input[type="email"],
+body.dark-mode input[type="password"],
+body.dark-mode input[type="number"],
+body.dark-mode textarea,
+body.dark-mode select {
+  background-color: #2a2a2a;
+  color: #f5f5f5;
+  border-color: #444;
+}
+
+body.dark-mode input:disabled {
+  background-color: #1a1a1a;
+  color: #888;
+}
+
+body.dark-mode input::placeholder,
+body.dark-mode textarea::placeholder {
+  color: #888;
+}
+
+body.dark-mode input:focus,
+body.dark-mode textarea:focus,
+body.dark-mode select:focus {
+  outline: 2px solid #3b82f6;
+  border-color: #3b82f6;
+}
+
+/* Dark mode for buttons */
+body.dark-mode button {
+  background-color: #3b82f6;
+  color: #fff;
+}
+
+body.dark-mode button:hover:not(:disabled) {
+  background-color: #2563eb;
+}
+
+body.dark-mode button:disabled {
+  background-color: #333;
+  color: #666;
+}
+
+/* Dark mode for cards and panels */
+body.dark-mode .card,
+body.dark-mode .panel,
+body.dark-mode .user-card,
+body.dark-mode .stat-card {
+  background-color: #1e1e1e;
+  color: #f5f5f5;
+  border-color: #444;
+}
+
+/* Dark mode for navigation bar */
+body.dark-mode .navbar {
+  background-color: #1e1e1e;
+  border-top: 1px solid #333;
+}
+
+body.dark-mode .navbar .navicon {
+  filter: brightness(0) saturate(100%) invert(1);
+}
+
+body.dark-mode .navbar #current {
+  filter: brightness(0) saturate(100%) invert(0.7);
+}
+
+/* Dark mode for messages */
+body.dark-mode .message-success {
+  color: #10b981;
+  background-color: #064e3b;
+}
+
+body.dark-mode .message-error {
+  color: #f87171;
+  background-color: #7f1d1d;
+}
+
+/* Dark mode for links */
+body.dark-mode a {
+  color: #60a5fa;
+}
+
+body.dark-mode a:hover {
+  color: #93c5fd;
+}
+
+/* Dark mode for borders and dividers */
+body.dark-mode hr,
+body.dark-mode .divider {
+  border-color: #333;
+}
+
+/* Dark mode for shadows */
+body.dark-mode .card,
+body.dark-mode .panel,
+body.dark-mode .container {
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+}
+
+/* Dark mode for specific components that might have light backgrounds */
+body.dark-mode .background-container {
+  background-color: #0a0a0a;
+}
+
+body.dark-mode .sign-in,
+body.dark-mode .login-form {
+  background-color: transparent;
+}
+
+/* Smooth transitions for dark mode changes */
+body,
+.app-header,
+.container,
+input,
+button,
+.card {
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+
+.titlebar{
+  background-color: white;
+  width: 100%;
+  height: fit-content;
+  padding-top: 1vh;
+  padding-bottom: 1vh;
+  display: grid;
+  grid-template-rows: 1fr;
+  grid-template-columns: 1fr 4fr 1fr;
+
+  align-items: center;
+  justify-items: center;
+  position: absolute;
+  top: 0px;
+
+  z-index: 10;
+  transition: background-color 0.3s ease;
+}
+
+.titlebar-title{
+  width: auto;
+  height: auto;
+  grid-column: 2;
+  font-weight: 700;
+  font-size: 2.5vh;
+  margin: 0;
+  transition: color 0.3s ease;
+}
+
+#titlebar-back-button{
+  width: auto;
+  height: auto;
+  grid-column: 1;
+  filter: brightness(0) saturate(100%);
+  transition: filter 0.3s ease;
+  cursor: pointer;
+}
+
+/* Dark Mode Styles */
+body.dark-mode .titlebar {
+  background-color: #1e1e1e;
+  border-bottom: 1px solid #333;
+}
+
+body.dark-mode .titlebar-title {
+  color: #f5f5f5;
+}
+
+body.dark-mode #titlebar-back-button {
+  filter: brightness(0) saturate(100%) invert(1);
+}

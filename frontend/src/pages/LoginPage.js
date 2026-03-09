@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { auth } from "../config/firebase";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { IsUserLoggedIn, IsAuthOutOfDate } from '../utls/UserChecks';
+import {toast} from 'react-toastify';
 
 function LoginPage() {
   const navigate = useNavigate();
@@ -27,6 +28,7 @@ function LoginPage() {
       // setUser(loggedInUser);
       // console.log(user);
       setMessage("Login successful");
+      toast.success("Login successful");
 
       // if successful then navigate to the home page
       navigate("/home");
@@ -35,21 +37,27 @@ function LoginPage() {
       switch (error.code) {
         case "auth/user-not-found":
           setMessage("No account found with this email.");
+          toast.error("No account found with this email.");
           break;
         case "auth/wrong-password":
           setMessage("Incorrect password.");
+          toast.error("Incorrect password.");
           break;
         case 'auth/invalid-email':
           setMessage("Invalid email address.");
+          toast.error("Invalid email address.");
           break;
         case 'auth/invalid-credential':
           setMessage("Invalid email or password.");
+          toast.error("Invalid email or password.");
           break;
         case 'auth/too-many-requests':
           setMessage("Too many failed attempts. Please try again later.");
+          toast.error("Too many failed attempts. Please try again later.");
           break;
         default:
           setMessage("Login failed: " + error.message);
+          toast.error("Login failed: " + error.message);
       }
     } finally {
       setLoading(false);
@@ -202,4 +210,3 @@ function SignUp() {
 
 
 export default LoginPage;
-

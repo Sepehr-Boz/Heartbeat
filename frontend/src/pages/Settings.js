@@ -2,13 +2,14 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { auth, db } from "../config/firebase";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
-import { updateEmail, updatePassword } from "firebase/auth";
+import { updatePassword } from "firebase/auth";
 import { IsUserLoggedIn, IsAuthOutOfDate } from "../utls/UserChecks";
+import { useDarkMode } from "../DarkModeContext";
 import "./css/Settings.css";
 
 function SettingsPage() {
+  const { darkMode, setDarkMode } = useDarkMode(); // Use global dark mode context
   const navigate = useNavigate();
-  const [darkMode, setDarkMode] = useState(false);
   const [username, setUsername] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -62,7 +63,7 @@ function SettingsPage() {
           const userData = userDoc.data();
           setUsername(userData.username || "");
           setGpDoctor(userData.profile?.gpDoctor || "");
-          setDarkMode(userData.preferences?.darkMode || false);
+          // Don't setDarkMode here - DarkModeContext already loaded it
           setTrackSteps(userData.preferences?.trackSteps ?? true);
           setTrackHeartRate(userData.preferences?.trackHeartRate ?? true);
           setTrackStairsClimbed(userData.preferences?.trackStairsClimbed ?? false);
@@ -78,18 +79,8 @@ function SettingsPage() {
     loadUserData();
   }, [currentUser]);
 
-  
-  useEffect(() => {
-    if (darkMode) {
-      document.body.classList.add("dark-mode");
-    } else {
-      document.body.classList.remove("dark-mode");
-    }
-    
-    return () => {
-      document.body.classList.remove("dark-mode");
-    };
-  }, [darkMode]);
+  // NOTE: We don't need a useEffect to apply dark-mode class
+  // DarkModeContext already handles this!
 
   const handleGoBack = () => {
     navigate(-1);
@@ -118,8 +109,6 @@ function SettingsPage() {
         updatedAt: new Date().toISOString(),
       });
 
-
-
       // Update password if provided
       if (newPassword) {
         if (!passwordsMatch) {
@@ -133,10 +122,8 @@ function SettingsPage() {
         setMessage("Password updated successfully!");
         setNewPassword("");
         setConfirmPassword("");
-      }
-
-      // If only settings were updated (password change)
-      if (!newPassword) {
+      } else {
+        // Only settings were updated
         setMessage("Settings saved successfully!");
       }
       
@@ -144,10 +131,7 @@ function SettingsPage() {
       console.error("Error saving settings:", error);
       switch (error.code) {
         case 'auth/requires-recent-login':
-          setMessage("Please log out and log back in to change email/password");
-          break;
-        case 'auth/email-already-in-use':
-          setMessage("This email is already in use");
+          setMessage("Please log out and log back in to change password");
           break;
         case 'auth/weak-password':
           setMessage("Password must be at least 6 characters");
@@ -190,7 +174,7 @@ function SettingsPage() {
       <div className="settings-container">
         <h2>Settings</h2>
 
-        
+        {/* Account Section */}
         <div className="settings-section">
           <h3>Account</h3>
 
@@ -211,8 +195,6 @@ function SettingsPage() {
             value={currentUser?.email || ""}
             disabled
           />
-          
-
 
           <label htmlFor="new-password">New Password</label>
           <input
@@ -249,7 +231,7 @@ function SettingsPage() {
           />
         </div>
 
-        
+        {/* Preferences Section */}
         <div className="settings-section">
           <h3>Preferences</h3>
 
@@ -264,7 +246,7 @@ function SettingsPage() {
           </div>
         </div>
 
-        
+        {/* Health Tracking Section */}
         <div className="settings-section">
           <h3>Health Tracking</h3>
 

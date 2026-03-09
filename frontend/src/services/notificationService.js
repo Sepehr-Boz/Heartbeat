@@ -1,74 +1,46 @@
-// src/services/notificationService.js
-import { messaging, db } from '../config/firebase';
-import { getToken, onMessage } from 'firebase/messaging';
-import { doc, setDoc } from 'firebase/firestore';
+import { toast } from 'react-toastify';
 
-// Paste your VAPID key from Step 1.2 here
-const VAPID_KEY = 'BDxh4GFpw_J3RJO5UjFzJMMpv5dEzaB34TrRmDA7H03Vc5-kS4RwAEYygPWzF59WdsWJvBDadyJFsSO6RQWn7vI ';
+let pollInterval = null;
 
-/**
- * Request notification permission and save token to Firestore
- */
-export const enableNotifications = async (userId) => {
-  try {
-    // Check if browser supports notifications
-    if (!('Notification' in window)) {
-      console.error('This browser does not support notifications');
-      return null;
-    }
-
-    // Request permission
-    const permission = await Notification.requestPermission();
-    
-    if (permission === 'granted') {
-      console.log('Notification permission granted');
+export const startPollingNotifications = (userId) => {
+  if (!userId) return;
+  
+  console.log('Starting notification polling for:', userId);
+  
+  // Poll every 30 seconds
+  pollInterval = setInterval(async () => {
+    try {
+      const response = await fetch(`http://localhost:8000/notifications/${userId}`);
+      const notification = await response.json();
       
-      // Get FCM token
-      const token = await getToken(messaging, { vapidKey: VAPID_KEY });
-      
-      if (token) {
-        console.log('FCM Token:', token);
-        
-        // Save token to Firestore
-        await setDoc(doc(db, 'users', userId), {
-          fcmToken: token,
-          notificationsEnabled: true,
-          createdAt: new Date()
-        }, { merge: true });
-        
-        return token;
-      } else {
-        console.error('No FCM token received');
-        return null;
+      if (notification) {
+        // Show toast
+        if (notification.type === 'warning') {
+          toast.warning(
+            <div>
+              <strong>{notification.title}</strong>
+              <p style={{ margin: '5px 0 0 0' }}>{notification.message}</p>
+            </div>,
+            {
+              position: "top-right",
+              autoClose: 10000,
+              hideProgressBar: false,
+              closeOnClick: true,
+              pauseOnHover: true,
+            }
+          );
+        }
       }
-    } else {
-      console.log('Notification permission denied');
-      return null;
+    } catch (error) {
+      console.error('Error checking notifications:', error);
     }
-  } catch (error) {
-    console.error('Error enabling notifications:', error);
-    return null;
-  }
+  }, 30000); // Check every 30 seconds
 };
 
-/**
- * Listen for foreground notifications
- */
-export const listenForNotifications = (callback) => {
-  onMessage(messaging, (payload) => {
-    console.log('Foreground notification received:', payload);
-    
-    // Show browser notification
-    if (payload.notification) {
-      new Notification(payload.notification.title, {
-        body: payload.notification.body,
-        icon: '/logo192.png'
-      });
-    }
-    
-    // Call callback if provided
-    if (callback) {
-      callback(payload);
-    }
-  });
+export const stopPollingNotifications = () => {
+  if (pollInterval) {
+    clearInterval(pollInterval);
+    pollInterval = null;
+    console.log('Stopped polling notifications');
+  }
 };

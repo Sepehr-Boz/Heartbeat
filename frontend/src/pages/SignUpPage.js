@@ -2,13 +2,20 @@ import "./css/SignUpPage.css";
 import { useState, useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { createUserWithEmailAndPassword, sendEmailVerification } from "firebase/auth";
-import { enableNotifications, listenForNotifications } from "../services/notificationService";
-// Aiden: added these imports
+
+
+
 import { db, auth } from "../config/firebase";
 import { doc, setDoc } from "firebase/firestore";
 import defaultProfilePic from "../components/images/default-profile-pic.png"
 
 import { IsUserLoggedIn, IsAuthOutOfDate } from "../utls/UserChecks.js";
+
+
+//notification import
+import { toast } from 'react-toastify'; 
+
+
 
 function SignUpPage() {
   const [email, setEmail] = useState("");
@@ -37,14 +44,18 @@ function SignUpPage() {
 
     checkAuth();           
 
-    listenForNotifications((payload) => {
-      console.log('Notification received!', payload);
-    });
   }, []);
 
   const passwordsMatch = password === confirmPassword;
   const isPasswordValid = password.length >= 8;
   const isEmailValid = email.includes('@') && email.includes('.');
+
+  // Add this test function
+  // const testNotification = () => {toast("Test notification from SignUpPage!");};
+
+
+
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -54,6 +65,7 @@ function SignUpPage() {
 
     if (!passwordsMatch) {
       setMessage("Passwords do not match.");
+      toast.error("Passwords do not match.");
       setLoading(false);
       return;
     } else {
@@ -62,6 +74,8 @@ function SignUpPage() {
 
     if (!isPasswordValid) {
       setMessage("Password must be at least 8 characters.");
+      toast.error("Password is too weak.");
+
       setLoading(false);
       return;
     }
@@ -85,16 +99,13 @@ function SignUpPage() {
         }
       });
 
-      // Enable notifications - NEW CODE
-      const token = await enableNotifications(user.uid);
-      if (token) {
-        console.log('Notifications enabled successfully!');
-      } else {
-        console.log('User declined notifications');
-      }
+
 
       setSignedUpUser({ email: user.email, uid: user.uid });
       setMessage("Account created successfully! Please verify your email.");
+      
+      // Add test notification
+      toast.success("Account created successfully");
       
       setEmail("");
       setPassword("");
@@ -105,16 +116,17 @@ function SignUpPage() {
     } catch (error) {
       switch (error.code) {
         case 'auth/email-already-in-use':
-          setMessage("This email is already registered.");
+          toast.error("This email is already registered."); // Add error notification
+
           break;
         case 'auth/invalid-email':
-          setMessage("Invalid email address.");
+          toast.error("Invalid email address.");
           break;
         case 'auth/weak-password':
-          setMessage("Password is too weak.");
+          toast.error("Password is too weak.");
           break;
         default:
-          setMessage("Error: " + error.message);
+          toast.error("Error: " + error.message);
       }
     } finally {
       setLoading(false);
@@ -163,7 +175,7 @@ function SignUpDetails({
   loading,
   isEmailValid,
   isPasswordValid,
-  submitted
+  submitted,
 }) {
   return (
     <div className="sign-in">
@@ -199,15 +211,23 @@ function SignUpDetails({
           required
         />
 
-        {submitted && confirmPassword.length > 0 && (
-          <p className={passwordsMatch ? "match-valid" : "match-invalid"}>
-            {passwordsMatch ? "✓ Passwords match" : "Passwords do not match"}
-          </p>
-        )}
+
 
         <button type="submit" disabled={(!passwordsMatch || loading) && submitted}>
           {loading ? "Creating Account..." : "Sign Up"}
         </button>
+
+
+        {/* Add Test Button */}
+        {/* <button 
+          type="button" 
+          onClick={testNotification}
+          style={{ marginTop: '10px' }}
+        >
+           Test Notification
+        </button> */}
+
+        
       </form>
 
       {message && (

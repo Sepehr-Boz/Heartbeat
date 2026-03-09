@@ -10,12 +10,17 @@ import ProfilePage from './pages/Profile';
 import SettingsPage from './pages/Settings';
 import StatsPage from './pages/StatsPage';
 import ScanQR from './pages/ScanQR';
+import { ToastContainer, toast } from 'react-toastify';
+import { DarkModeProvider } from './DarkModeContext';
 import OtherUserHomePage from './pages/OtherUserHomePage';
 import OtherUserStatsPage from './pages/OtherUserStatsPage';
 
 
 function App() {
   const [userRemembered, setUserRemembered] = useState(false);
+  
+  //test notification function
+  const notify = () => toast("Wow so easy!");
   
   useEffect(() => {
     if (!IsAuthOutOfDate() && IsUserLoggedIn()){
@@ -28,7 +33,8 @@ function App() {
 
 
   return (
-    <div className="App">
+    <DarkModeProvider>
+      <div className="App">
         <Routes>
           <Route path='/' element={userRemembered ? <WelcomePage /> : <LoginPage />}></Route>
           <Route path='/login' element={<LoginPage/>}></Route>
@@ -43,7 +49,9 @@ function App() {
           <Route path='/other/home' element={<OtherUserHomePage/>}></Route>
           <Route path='/other/stats' element={<OtherUserStatsPage/>}></Route>
         </Routes>
-    </div>
+        <ToastContainer />
+      </div>
+    </DarkModeProvider>
   );
 }
 

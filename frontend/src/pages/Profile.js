@@ -99,13 +99,14 @@ function ProfilePage() {
         return (
         <div className="profile">
             <div className="profile-header">
-            <img
-                src={profilePic}
-                alt="Profile"
-                className="profile-pic"
-                onClick={handleProfileClick}
-                style={{cursor: "pointer"}}
-            />
+                <div className="profile-pic-container" onClick={handleProfileClick}>
+                    <img
+                        src={profilePic}
+                        alt="Profile"
+                        className="profile-pic"
+                    />
+                    <div className="profile-pic-overlay">Change Photo</div>
+                </div>
             <input type="file" ref={fileInputRef} style={{display: "none"}} accept="image/*" onChange={handleFile} />
             <h2 className="username">{username}</h2>
             </div>
