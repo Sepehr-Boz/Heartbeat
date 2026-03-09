@@ -10,6 +10,8 @@ import ProfilePage from './pages/Profile';
 import SettingsPage from './pages/Settings';
 import StatsPage from './pages/StatsPage';
 import ScanQR from './pages/ScanQR';
+import OtherUserHomePage from './pages/OtherUserHomePage';
+import OtherUserStatsPage from './pages/OtherUserStatsPage';
 
 
 function App() {
@@ -38,6 +40,8 @@ function App() {
           <Route path='/scan' element={<ScanQR/>}></Route>
           <Route path='/home' element={<HomePage/>}></Route>
           <Route path='/stats' element={<StatsPage/>}></Route>
+          <Route path='/other/home' element={<OtherUserHomePage/>}></Route>
+          <Route path='/other/stats' element={<OtherUserStatsPage/>}></Route>
         </Routes>
     </div>
   );

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import TitleBar from "../components/TitleBar";
 import NavBar from "../components/NavBar";
 import Divider from "../components/Divider";
@@ -21,10 +21,11 @@ function CategoryButton({text, category, icon, colour}){
     // TODO: becomes white
     let navigate = useNavigate();
 
+
     return (
     <div className='category-button' style={{backgroundColor: colour}}
     onClick={() => {
-        navigate("/stats", {state:{category: category}});
+        navigate("/other/stats", {state:{category: category}});
     }}
     >
         <img src={icon} className='category-button-icon' />
@@ -36,7 +37,7 @@ function CategoryButton({text, category, icon, colour}){
 
 
 
-function HomePage(){
+function OtherUserHomePage(){
     // TODO: check which categories are tracked and render a button for each one
     const [trackSteps, setTrackSteps] = useState(true);
     const [trackHeartrate, setTrackHeartrate] = useState(true);
@@ -44,9 +45,10 @@ function HomePage(){
     const [trackDistance, setTrackDistance] = useState(true);
 
     const navigate = useNavigate();
-
+    const location = useLocation();
 
     useEffect(() => {
+        // check that the ORIGINAL user has logged in AND that the other user exists/get has been retrieved?
         const checkAuth = async () => {
             const loggedIn = await IsUserLoggedIn();
             const outOfDate = await IsAuthOutOfDate();
@@ -58,18 +60,26 @@ function HomePage(){
                 await auth.signOut();
                 navigate("/login");
             }
+            else if (!location.state){
+                navigate("/profile"); // REQUIRES uid being passed to the location
+            }
             else{
                 auth.currentUser.reload();
             }
         };
 
-        checkAuth();        
-    }, []);
+        checkAuth();
 
+        // go back to profile after 10 minutes
+        setTimeout(() => {
+            navigate("/profile");
+        }, 1000 * 60);
+    }, []);    
 
+    // TODO: change the titlebar title from heartbeat to the user's name
     return (
     <div className='home-page'>
-        <TitleBar title="Heartbeat" enableBack={true} />
+        <TitleBar title="USER 2 NAME" enableBack={true} />
         <NavBar isHome={true} isQR={false} isProfile={false} />
         <div className='home-page-scrolldiv'>
             {trackSteps
@@ -91,4 +101,4 @@ function HomePage(){
 
 
 
-export default HomePage;
+export default OtherUserHomePage;

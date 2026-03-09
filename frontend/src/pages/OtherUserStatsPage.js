@@ -84,7 +84,7 @@ const heartrateColors = {
  * - *bool* showMonthly
  * - *bool* showYearly
  */
-function StatsPage({route}){
+function OtherUserStatsPage({route}){
     const navigate = useNavigate();
     const location = useLocation();
     const category = location.state.category;
@@ -457,8 +457,8 @@ function StatsPage({route}){
             await auth.signOut();
             navigate("/login");
           }
-          else if (!location.state.category){
-            navigate("/home");
+          else if (!location.state){
+            navigate("/other/home");
           }
           else{
               auth.currentUser.reload();
@@ -466,6 +466,11 @@ function StatsPage({route}){
       };
 
       checkAuth();     
+
+      // go back to profile screen after 10 minutes
+      setTimeout(() => {
+        navigate("/profile");
+      }, 1000 * 60);
 
       if (showDaily) fetchDailyData();
       if (showWeekly) fetchWeeklyData();
@@ -522,4 +527,4 @@ function StatsPage({route}){
 
 
 
-export default StatsPage;
+export default OtherUserStatsPage;
