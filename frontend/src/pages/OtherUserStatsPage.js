@@ -87,7 +87,8 @@ const heartrateColors = {
 function OtherUserStatsPage({route}){
     const navigate = useNavigate();
     const location = useLocation();
-    const category = location.state.category;
+    const category = location.state?.category;
+    const uid = location.state?.uid;
 
     const [showDaily, setShowDaily] = useState(true);
     const [showWeekly, setShowWeekly] = useState(true);
@@ -115,6 +116,7 @@ function OtherUserStatsPage({route}){
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
+          uid: uid,
           category: category,
           start_date: dayStart.toISOString(),
           end_date: dayEnd.toISOString()
@@ -195,6 +197,7 @@ function OtherUserStatsPage({route}){
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
+          uid: uid,
           category: category,
           start_date: weekStart.toISOString(),
           end_date: weekEnd.toISOString()

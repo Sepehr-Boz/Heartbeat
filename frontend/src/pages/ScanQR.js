@@ -40,8 +40,16 @@ function ScanQR() {
                 qrbox: 200,
             },
             (decodedText) => {
-                console.log("Medical Data:", decodedText);
-                //scanner.stop()
+                console.log("User ID:", decodedText);
+                
+                const scannedUid = decodedText;
+                if(scannerRef.current) {
+                    scannerRef.current.stop().catch(() => {});
+                }
+
+                navigate("/other/home", {
+                    state: {uid: scannedUid}
+                });
             },
             () => {}
         )
