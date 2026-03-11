@@ -3,6 +3,7 @@ import { useContext, useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { IsUserLoggedIn, IsAuthOutOfDate } from "../utls/UserChecks";
 
+import { onAuthStateChanged } from "firebase/auth";
 import { auth, db, storage } from "../config/firebase";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
@@ -21,30 +22,11 @@ function ProfilePage() {
         const fileInputRef = useRef(null);
 
         useEffect(() => {
-            const checkAuth = async () => {
-                const loggedIn = await IsUserLoggedIn();
-                const outOfDate = await IsAuthOutOfDate();
 
-                if (!loggedIn){
+            const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+
+                if(!currentUser){
                     navigate("/login");
-                }
-                else if (outOfDate){
-                    await auth.signOut();
-                    navigate("/login");
-                }
-                else{
-                    auth.currentUser.reload();
-                }
-            };
-
-            checkAuth();      
-
-
-            const loadUserData = async () => {
-                const currentUser = auth.currentUser;
-
-                if(!currentUser) {
-                    setUsername("Username");
                     return;
                 }
 
@@ -54,16 +36,19 @@ function ProfilePage() {
 
                     if(userDoc.exists()) {
                         const userData = userDoc.data();
+
                         setUsername(userData.username || "Username");
                         setProfilePic(userData.profilePic || defaultProfilePic);
-                        
                     }
-                } catch (error) {
-                    console.error("Error loading profile:" + error);
-                    setUsername("Username");
-                } 
-            };
-            loadUserData();
+
+                } catch(error){
+                    console.error("Error loading profile:", error);
+                }
+
+            });
+
+            return () => unsubscribe();
+
         }, []);
 
         // allow users to click profile pic to change image
