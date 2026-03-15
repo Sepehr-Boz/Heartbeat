@@ -106,7 +106,8 @@ function ProfilePage() {
             <div className="profile-options">
             <button className="option-button" onClick={() => navigate("/settings")}>Settings</button>
             <button className="option-button" onClick={() => navigate("/scan")}>Scan User Code</button>
-            <button className="option-button">Contact GP</button>
+            <button className="option-button" onClick={() => navigate("/connect-deivce")}>Connect Device</button>
+            <button className="option-button" onClick={() => navigate("/contact-gp")}>Contact GP</button>
             <button
                 className="option-button logout-button"
                 onClick={async () => {
