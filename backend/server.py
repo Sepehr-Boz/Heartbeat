@@ -183,13 +183,13 @@ def get_data(req: DataRequestParams):
                     # for the next element
                     all_data.append(data)
                     yield grouped_data
-                elif req.group == DataGrouping.weekly and dif_time.days > 1:
+                elif req.group == DataGrouping.weekly and dif_time.days >= 1:
                     grouped_data['time'] = first_dp_time.replace(hour=0, minute=0, second=0, microsecond=0)
                     grouped_data['data'] = sum([x['data'] for x in all_data])
                     all_data.clear()
                     all_data.append(data)
                     yield grouped_data
-                elif req.group == DataGrouping.monthly and dif_time.days > 1:
+                elif req.group == DataGrouping.monthly and dif_time.days >= 1:
                     grouped_data['time'] = first_dp_time.replace(hour=0, minute=0, second=0, microsecond=0)
                     grouped_data['data'] = sum([x['data'] for x in all_data])
                     all_data.clear()
