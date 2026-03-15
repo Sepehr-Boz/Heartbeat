@@ -55,13 +55,13 @@ def lerp(a: float, b: float, t: float):
 
 # min and max values used for generating the random data points
 STEPS_MIN = 0
-STEPS_MAX = 60
+STEPS_MAX = 500
 DISTANCE_MIN = 0
-DISTANCE_MAX = 80
-CALORIES_MIN = 25
-CALORIES_MAX = 300
-HEARTBEAT_MIN = 60
-HEARTBEAT_MAX = 200
+DISTANCE_MAX = 30
+CALORIES_MIN = 2
+CALORIES_MAX = 20
+HEARTRATE_MIN = 60
+HEARTRATE_MAX = 160
 
 
 class DataGrouping(str, Enum):
@@ -70,12 +70,20 @@ class DataGrouping(str, Enum):
     monthly = "monthly"
     yearly = "yearly"
 
+class DataGroupingMode(str, Enum):
+    sum = "sum"
+    mean = "mean"
+
 class DataRequestParams(BaseModel):
     category: str
     min_date: datetime | None = None
     max_date: datetime | None = None
     uid: str
     group: DataGrouping | None = None
+    mode: DataGroupingMode | None = None
+
+# TODO: try and speed up this function by asyncing it/threading it with multiple random instances?
+# TODO: maybe use a random instance for every month?
 
 
 @app.post("/get_data/")
@@ -85,10 +93,12 @@ def get_data(req: DataRequestParams):
 
 
     # check that the category is an accepted one
-    if req.category not in ['steps', 'distance_m', 'calories', 'heartbeat']: return
+    if req.category not in ['steps', 'distance_m', 'calories', 'heartrate']: return
 
     check_against_min_date: bool = req.min_date != None
     check_against_max_date: bool = req.max_date != None
+
+    mode: DataGroupingMode = DataGroupingMode.sum if req.mode is None else req.mode
 
     rand_seed: int = hash(req.uid)
     generator: random.Random = random.Random()
@@ -101,7 +111,7 @@ def get_data(req: DataRequestParams):
     end_date: datetime = datetime(curr_date.year + 1, 1, 1)
     if check_against_max_date:
         end_date = end_date.replace(tzinfo=req.min_date.tzinfo)
-    date_increment: datetime = timedelta(minutes=1)
+    date_increment: datetime = timedelta(minutes=30)
 
     all_data: list[dict] = [
         {
@@ -120,34 +130,34 @@ def get_data(req: DataRequestParams):
             low= (STEPS_MIN if req.category == "steps"
             else DISTANCE_MIN if req.category == "distance_m"
             else CALORIES_MIN if req.category == "calories"
-            else HEARTBEAT_MIN)
+            else HEARTRATE_MIN)
             + lerp(
                 (STEPS_MIN if req.category == "steps"
                 else DISTANCE_MIN if req.category == "distance_m"
                 else CALORIES_MIN if req.category == "calories"
-                else HEARTBEAT_MIN),
+                else HEARTRATE_MIN),
                 (STEPS_MAX if req.category == "steps"
                 else DISTANCE_MAX if req.category == "distance_m"
                 else CALORIES_MAX if req.category == "calories"
-                else HEARTBEAT_MAX),
+                else HEARTRATE_MAX),
                 (data['time'].hour if data['time'].hour <= 12 else 12 - (data['time'].hour - 12)) / 12),
 
             high= (STEPS_MAX if req.category == "steps"
             else DISTANCE_MAX if req.category == "distance_m"
             else CALORIES_MAX if req.category == "calories"
-            else HEARTBEAT_MAX)
+            else HEARTRATE_MAX)
             * lerp(0, 1, (data['time'].hour if data['time'].hour <= 12 else 12 - (data['time'].hour - 12)) / 12),
 
             mode= lerp(
                 a= (STEPS_MAX if req.category == "steps"
                 else DISTANCE_MAX if req.category == "distance_m"
                 else CALORIES_MAX if req.category == "calories"
-                else HEARTBEAT_MAX),
+                else HEARTRATE_MAX),
 
                 b= (STEPS_MAX if req.category == "steps"
                 else DISTANCE_MAX if req.category == "distance_m"
                 else CALORIES_MAX if req.category == "calories"
-                else HEARTBEAT_MAX),
+                else HEARTRATE_MAX),
 
                 t= (data['time'].hour if data['time'].hour <= 12 else 12 - (data['time'].hour - 12)) / 12
             )
@@ -156,6 +166,8 @@ def get_data(req: DataRequestParams):
 
         if check_against_min_date and data['time'] < req.min_date:
             print("skipping", data)
+            # pop to ensure that only 1 element is kept because we don't care about the elements before the clamped time
+            all_data.pop(0)
             continue
         elif (check_against_max_date and data['time'] > req.max_date) or data['time'] > end_date:
             break
@@ -177,7 +189,11 @@ def get_data(req: DataRequestParams):
                 # so to check for 1 hour need to calculate how many seconds, and for 1 month need to calculate how many days
                 if req.group == DataGrouping.daily and dif_time.seconds > (1 * 60 * 60):
                     grouped_data['time'] = first_dp_time.replace(minute=0, second=0, microsecond=0)
-                    grouped_data['data'] = sum([x['data'] for x in all_data])
+                    if mode == DataGroupingMode.sum:
+                        grouped_data['data'] = sum([x['data'] for x in all_data])
+                    elif mode == DataGroupingMode.mean:
+                        num_elems: int = len(all_data)
+                        grouped_data['data'] = sum([x['data'] / num_elems for x in all_data])
                     all_data.clear()
                     # need to append the data back to all_data as the list having at least one element is required to get the next time
                     # for the next element
@@ -185,19 +201,31 @@ def get_data(req: DataRequestParams):
                     yield grouped_data
                 elif req.group == DataGrouping.weekly and dif_time.days >= 1:
                     grouped_data['time'] = first_dp_time.replace(hour=0, minute=0, second=0, microsecond=0)
-                    grouped_data['data'] = sum([x['data'] for x in all_data])
+                    if mode == DataGroupingMode.sum:
+                        grouped_data['data'] = sum([x['data'] for x in all_data])
+                    elif mode == DataGroupingMode.mean:
+                        num_elems: int = len(all_data)
+                        grouped_data['data'] = sum([x['data'] / num_elems for x in all_data])
                     all_data.clear()
                     all_data.append(data)
                     yield grouped_data
-                elif req.group == DataGrouping.monthly and dif_time.days >= 1:
+                elif req.group == DataGrouping.monthly and dif_time.days >= 7:
                     grouped_data['time'] = first_dp_time.replace(hour=0, minute=0, second=0, microsecond=0)
-                    grouped_data['data'] = sum([x['data'] for x in all_data])
+                    if mode == DataGroupingMode.sum:
+                        grouped_data['data'] = sum([x['data'] for x in all_data])
+                    elif mode == DataGroupingMode.mean:
+                        num_elems: int = len(all_data)
+                        grouped_data['data'] = sum([x['data'] / num_elems for x in all_data])
                     all_data.clear()
                     all_data.append(data)
                     yield grouped_data
                 elif req.group == DataGrouping.yearly and dif_time.days > monthrange(first_dp_time.year, first_dp_time.month)[1]:
                     grouped_data['time'] = first_dp_time.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
-                    grouped_data['data'] = sum([x['data'] for x in all_data])
+                    if mode == DataGroupingMode.sum:
+                        grouped_data['data'] = sum([x['data'] for x in all_data])
+                    elif mode == DataGroupingMode.mean:
+                        num_elems: int = len(all_data)
+                        grouped_data['data'] = sum([x['data'] / num_elems for x in all_data])
                     all_data.clear()
                     all_data.append(data)
                     yield grouped_data
@@ -214,22 +242,38 @@ def get_data(req: DataRequestParams):
     # want the data for the last 50 minutes or so rather than hour
     if req.group == DataGrouping.daily:
         grouped_data['time'] = first_dp_time.replace(minute=0, second=0, microsecond=0)
-        grouped_data['data'] = sum([x['data'] for x in all_data])
+        if mode == DataGroupingMode.sum:
+            grouped_data['data'] = sum([x['data'] for x in all_data])
+        elif mode == DataGroupingMode.mean:
+            num_elems: int = len(all_data)
+            grouped_data['data'] = sum([x['data'] / num_elems for x in all_data])
         all_data.clear()
         yield grouped_data
     elif req.group == DataGrouping.weekly:
         grouped_data['time'] = first_dp_time.replace(hour=0, minute=0, second=0, microsecond=0)
-        grouped_data['data'] = sum([x['data'] for x in all_data])
+        if mode == DataGroupingMode.sum:
+            grouped_data['data'] = sum([x['data'] for x in all_data])
+        elif mode == DataGroupingMode.mean:
+            num_elems: int = len(all_data)
+            grouped_data['data'] = sum([x['data'] / num_elems for x in all_data])
         all_data.clear()
         yield grouped_data
     elif req.group == DataGrouping.monthly:
         grouped_data['time'] = first_dp_time.replace(hour=0, minute=0, second=0, microsecond=0)
-        grouped_data['data'] = sum([x['data'] for x in all_data])
+        if mode == DataGroupingMode.sum:
+            grouped_data['data'] = sum([x['data'] for x in all_data])
+        elif mode == DataGroupingMode.mean:
+            num_elems: int = len(all_data)
+            grouped_data['data'] = sum([x['data'] / num_elems for x in all_data])
         all_data.clear()
         yield grouped_data
     elif req.group == DataGrouping.yearly:
         grouped_data['time'] = first_dp_time.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
-        grouped_data['data'] = sum([x['data'] for x in all_data])
+        if mode == DataGroupingMode.sum:
+            grouped_data['data'] = sum([x['data'] for x in all_data])
+        elif mode == DataGroupingMode.mean:
+            num_elems: int = len(all_data)
+            grouped_data['data'] = sum([x['data'] / num_elems for x in all_data])
         all_data.clear()
         yield grouped_data
 
