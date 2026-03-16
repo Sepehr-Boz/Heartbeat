@@ -116,6 +116,8 @@ function ProfilePage() {
                 try {
                     // sign out from Firebase auth
                     await auth.signOut();
+                    localStorage.removeItem("username");
+                    localStorage.removeItem("profilePic");
                     // navigate to login page and replace history so user can't go back
                     navigate("/login", { replace: true });
                 } catch (error) {

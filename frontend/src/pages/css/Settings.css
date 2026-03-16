@@ -22,7 +22,7 @@
 }
 
 .settings-section {
-  margin-top: 2rem;
+  margin-top: 1.5rem;   /* reduced from 2 to fit delete account*/
 }
 
 .settings-section h3 {
@@ -32,7 +32,7 @@
 
 .settings-container label {
   display: block;
-  margin-top: 1rem;
+  margin-top: 0.5rem;   /* reduced from 1 to fit delete account */
   font-weight: 500;
   color: #333;
 }
@@ -252,4 +252,19 @@ body.dark-mode .success-text {
     width: 20px;
     height: 20px;
   }
+}
+
+.delete-account-button {
+  margin-top: 15px;
+  background-color: red;
+  color: white;
+  border: none;
+  padding: 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  width: 100%;
+}
+
+.delete-account-button:hover {
+  background-color: darkred;
 }

@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { auth, db } from "../config/firebase";
-import { doc, getDoc, updateDoc } from "firebase/firestore";
-import { updatePassword } from "firebase/auth";
+import { auth, db, storage } from "../config/firebase";
+import { doc, getDoc, updateDoc, deleteDoc } from "firebase/firestore";
+import { updatePassword, deleteUser } from "firebase/auth";
 import { IsUserLoggedIn, IsAuthOutOfDate } from "../utls/UserChecks";
 import { useDarkMode } from "../DarkModeContext";
+import {ref, deleteObject} from "firebase/storage";
 import "./css/Settings.css";
 
 function SettingsPage() {
@@ -145,6 +146,28 @@ function SettingsPage() {
     }
   };
 
+  const handleDeleteAccount = async () => {
+    if (!currentUser) return;
+    const confirmDelete = window.confirm(
+      "Are you sure you want to delete your account?"
+    );
+    if (!confirmDelete) return;
+
+    try {
+      const uid = currentUser.uid;
+      await deleteDoc(doc(db, "users", uid));
+      // delete profile pic from storage
+      const imageRef = ref(storage, `profile-pics/${uid}.png`);
+      await deleteObject(imageRef).catch(() => {});
+
+      await deleteUser(currentUser);
+      navigate("/login");
+    } catch (error) {
+      console.error("Error deleting your account");
+      setMessage("Error deleting account: " + error.message);
+    }
+  };
+
   if (loading) {
     return (
       <div className="settings-page">
@@ -231,6 +254,13 @@ function SettingsPage() {
             onChange={(e) => setGpDoctor(e.target.value)}
           />
         </div>
+
+        <button
+          className="delete-account-button"
+          onClick={handleDeleteAccount}
+        >
+          Delete Account
+        </button>
 
         {/* Preferences Section */}
         <div className="settings-section">
