@@ -106,79 +106,90 @@ function StatsPage({route}){
     const fetchDailyData = async () => {
       const dayStart = new Date();
       dayStart.setHours(0, 0, 0, 0);
-      const dayEnd = new Date(dayStart);
-      dayEnd.setDate(dayStart.getDate() + 1);
+      const dayEnd = new Date();
   
-      const response = await fetch("http://localhost:8000/data/", {
+      const response = await fetch("http://localhost:8000/get_data/", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
           category: category,
-          start_date: dayStart.toISOString(),
-          end_date: dayEnd.toISOString()
+          min_date: dayStart.toISOString(),
+          max_date: dayEnd.toISOString(),
+          uid: auth.currentUser.uid,
+          group: "daily",
+          mode: category != "heartrate" ? "sum" : "mean"
         })
-      }).then(res => res.json());
+      })
+      .then(res => res.json())
+      .then(res => {
+        if (category == "heartrate") return res.map(x => {
+          return {data: x.data, time: new Date(x.time)};
+        });
+        let res2 = [{
+          data: res[0].data,
+          time: new Date(res[0].time)
+        }];
+        for (let i = 1; i < res.length; i++){
+          res2.push({
+            data: res[i].data + res2[i-1].data,
+            time: new Date(res[i].time)
+          });
+        }
+        return res2;
+      })
+      .then(res => {
+        let maxValue = Math.max(...res.map(x => x.data)) * 1.25;
 
-      // add an entry for each hour
-      let dailyData = [];
-      for (let i = 0; i < 24; i++){
-        let hour = new Date(dayStart);
-        hour.setHours(hour.getHours() + i);
-        if (hour > Date.now()) break;
-        else dailyData.push({data: 0, time: hour});
-      }
-      response.forEach(element => {
-        let formattedTime = new Date(element.time);
-        dailyData[formattedTime.getHours()].data += element.data;
-      });
-      let maxValue = Math.ceil(Math.max(...dailyData.map(x => x.data)) / 1000) * 1000 * 1.5;
-
-      setDailyOptions({
-        title: {textAlign: 'left', fontSize: 14, fontWeight: 600, text: `${category.charAt(0).toUpperCase() + category.substring(1)} Today`},
-        data: dailyData,
-        series: [
-          {type: 'area', xKey: 'time', xName: 'Time', yKey: 'data', yName: `${category.charAt(0).toUpperCase() + category.substring(1)}`,
-          stroke: category == 'steps' ? stepsColors.stroke : category == 'distance_m' ? distanceColors.stroke
-          : category == 'calories' ? caloriesColors.stroke : category == 'heartrate' ? heartrateColors.stroke : stepsColors.stroke,
-          strokeWidth: 3,
-          fill: category == 'steps' ? stepsColors.fill : category == 'distance_m' ? distanceColors.fill
-          : category == 'calories' ? caloriesColors.fill : category == 'heartrate' ? heartrateColors.fill : stepsColors.fill,
-          fillOpacity: 0.25,
-          marker: {
-            itemStyler: ({datum}) => {
-              const isLastElem = (datum == dailyData[dailyData.length-1]);
-              return {shape: 'circle', size: isLastElem ? 30 : 0,
-              fill: {type: 'gradient', colorStops: category == 'steps' ? stepsColors.markerGradient : category == 'distance_m' ? distanceColors.markerGradient
-                : category == 'calories' ? caloriesColors.markerGradient : category == 'heartrate' ? heartrateColors.markerGradient : stepsColors.markerGradient}
+        setDailyOptions({
+          title: {textAlign: 'left', fontSize: 14, fontWeight: 600, text: `${category.charAt(0).toUpperCase() + category.substring(1)} Today`},
+          data: res,
+          series: [
+            {type: 'area', xKey: 'time', xName: 'Time', yKey: 'data', yName: `${category.charAt(0).toUpperCase() + category.substring(1)}`,
+            stroke: category == 'steps' ? stepsColors.stroke : category == 'distance_m' ? distanceColors.stroke
+            : category == 'calories' ? caloriesColors.stroke : category == 'heartrate' ? heartrateColors.stroke : stepsColors.stroke,
+            strokeWidth: 3,
+            fill: category == 'steps' ? stepsColors.fill : category == 'distance_m' ? distanceColors.fill
+            : category == 'calories' ? caloriesColors.fill : category == 'heartrate' ? heartrateColors.fill : stepsColors.fill,
+            fillOpacity: 0.25,
+            marker: {
+              itemStyler: ({datum}) => {
+                const isLastElem = (datum == res[res.length-1]);
+                return {shape: 'circle', size: isLastElem ? 30 : 0,
+                fill: {type: 'gradient', colorStops: category == 'steps' ? stepsColors.markerGradient : category == 'distance_m' ? distanceColors.markerGradient
+                  : category == 'calories' ? caloriesColors.markerGradient : category == 'heartrate' ? heartrateColors.markerGradient : stepsColors.markerGradient}
+                }
               }
-            }
-          }}
-        ],
-        axes: {
-          x: {type: 'time', line: {enabled: false}, label: {
-            color: '#828282', fontSize: 10, fontWeight: 300, avoidCollisions: true,
-            formatter: ({value}) => {
-              const hours = value.getHours();
-              const minutes = value.getMinutes();
-              return (hours < 10 ? `0${hours}` : hours).toString()
-              + (minutes < 10 ? `0${minutes}` : minutes).toString();
-            }
-          },
-          min: dayStart, max: dayEnd},
-          y: {type: 'number', line: {enabled: false}, interval: {maxSpacing: 50},
-            position: 'left', gridLine: {style: [{stroke: '#E6E6E6', strokeWidth: 1}]},
-            label: {
+            }}
+          ],
+          axes: {
+            x: {type: 'time', line: {enabled: false}, label: {
+              color: '#828282', fontSize: 10, fontWeight: 300, avoidCollisions: true,
               formatter: ({value}) => {
-                return value >= 1000 ? (value / 1000).toString() + "K" : value;
+                const hours = value.getHours();
+                const minutes = value.getMinutes();
+                return (hours < 10 ? `0${hours}` : hours).toString()
+                + (minutes < 10 ? `0${minutes}` : minutes).toString();
               }
             },
-            min: 0, max: maxValue
-          }
-        },
-        padding: {top: 10, bottom: 10, left: 15, right: 15},
-        background: {fill: '#FFFFFF'}        
+            min: dayStart, max: dayEnd},
+            y: {type: 'number', line: {enabled: false}, interval: {maxSpacing: 50},
+              position: 'left', gridLine: {style: [{stroke: '#E6E6E6', strokeWidth: 1}]},
+              label: {
+                formatter: ({value}) => {
+                  if (category == "heartbeat") return Math.trunc(value).toString() + "BPM";
+                  else if (value >= 1_000_000) return Math.trunc(value / 1_000_000).toString() + "M";
+                  else if (value >= 1000) return Math.trunc(value / 1000).toString() + "K";
+                  else return Math.trunc(value).toString();
+                }
+              },
+              min: 0, max: maxValue
+            }
+          },
+          padding: {top: 10, bottom: 10, left: 15, right: 15},
+          background: {fill: '#FFFFFF'}        
+        })        
       })
     }
 
@@ -189,91 +200,90 @@ function StatsPage({route}){
       const weekEnd = new Date(weekStart);
       weekEnd.setDate(weekStart.getDate() + 7);
 
-      const response = await fetch("http://localhost:8000/data/", {
+      const response = await fetch("http://localhost:8000/get_data/", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
           category: category,
-          start_date: weekStart.toISOString(),
-          end_date: weekEnd.toISOString()
+          min_date: weekStart.toISOString(),
+          max_date: weekEnd.toISOString(),
+          uid: auth.currentUser.uid,
+          group: "weekly",
+          mode: category != "heartrate" ? "sum" : "mean"
         })
       })
       .catch(x => {
-        return fetch("http://127.0.0.1:8000/data/", {
+        return fetch("http://127.0.0.1:8000/get_data/", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
           category: category,
-          start_date: weekStart.toISOString(),
-          end_date: weekEnd.toISOString()
+          min_date: weekStart.toISOString(),
+          max_date: weekEnd.toISOString(),
+          uid: auth.currentUser.uid,
+          group: "weekly",
+          mode: category != "heartrate" ? "sum" : "mean"
         })
       })        
       })
-      .then(res => res.json());
+      .then(res => res.json())
+      .then(res => res.map(x => {
+        return {data: x.data, time: new Date(x.time)};
+      }))
+      .then(res => {
+        let maxValue = Math.max(...res.map(x => x.data)) * 1.25;
 
-      // fill weekly data for the number of days in a week (7)
-      let weeklyData = [];
-      for (let i = 0; i < 7; i++){
-        let weekday = new Date(weekStart);
-        weekday.setDate(weekday.getDate() + i);
-        if (weekday > Date.now()) break;
-        else weeklyData.push({data: 0, time: weekday});
-      }
-      // group data into 7 points: one for each day of the week
-      response.forEach(async element => {
-        // check if a data element for that day already exists, if not then create one and if so then increase steps
-        let formattedDate = new Date(element.time);
-        weeklyData[formattedDate.getDay()].data += element.data;
-      });
-      let maxValue = Math.ceil(Math.max(...weeklyData.map(x => x.data)) / 1000) * 1000 * 1.5;
-
-      setWeeklyOptions({
-        title: {textAlign: 'left', fontSize: 14, fontWeight: 600, text: `${category.charAt(0).toUpperCase() + category.substring(1)} This Week`},
-        data: weeklyData,
-        series: [
-          {type: 'area', xKey: 'time', xName: 'Time', yKey: 'data', yName: `${category.charAt(0).toUpperCase() + category.substring(1)}`,
-          stroke: category == 'steps' ? stepsColors.stroke : category == 'distance_m' ? distanceColors.stroke
-          : category == 'calories' ? caloriesColors.stroke : category == 'heartrate' ? heartrateColors.stroke : stepsColors.stroke,
-          strokeWidth: 3, fill: category == 'steps' ? stepsColors.fill : category == 'distance_m' ? distanceColors.fill
-          : category == 'calories' ? caloriesColors.fill : category == 'heartrate' ? heartrateColors.fill : stepsColors.fill,
-          fillOpacity: 0.25,
-          marker: {
-            itemStyler: ({datum}) => {
-              const isLastElem = (datum == weeklyData[weeklyData.length-1]);
-              return {shape: 'circle', size: isLastElem ? 30 : 0,
-              fill: {type: 'gradient', colorStops: category == 'steps' ? stepsColors.markerGradient : category == 'distance_m' ? distanceColors.markerGradient
-          : category == 'calories' ? caloriesColors.markerGradient : category == 'heartrate' ? heartrateColors.markerGradient : stepsColors.markerGradient}
+        setWeeklyOptions({
+          title: {textAlign: 'left', fontSize: 14, fontWeight: 600, text: `${category.charAt(0).toUpperCase() + category.substring(1)} This Week`},
+          data: res,
+          series: [
+            {type: 'area', xKey: 'time', xName: 'Time', yKey: 'data', yName: `${category.charAt(0).toUpperCase() + category.substring(1)}`,
+            stroke: category == 'steps' ? stepsColors.stroke : category == 'distance_m' ? distanceColors.stroke
+            : category == 'calories' ? caloriesColors.stroke : category == 'heartrate' ? heartrateColors.stroke : stepsColors.stroke,
+            strokeWidth: 3, fill: category == 'steps' ? stepsColors.fill : category == 'distance_m' ? distanceColors.fill
+            : category == 'calories' ? caloriesColors.fill : category == 'heartrate' ? heartrateColors.fill : stepsColors.fill,
+            fillOpacity: 0.25,
+            marker: {
+              itemStyler: ({datum}) => {
+                const isLastElem = (datum == res[res.length-1]);
+                return {shape: 'circle', size: isLastElem ? 30 : 0,
+                fill: {type: 'gradient', colorStops: category == 'steps' ? stepsColors.markerGradient : category == 'distance_m' ? distanceColors.markerGradient
+            : category == 'calories' ? caloriesColors.markerGradient : category == 'heartrate' ? heartrateColors.markerGradient : stepsColors.markerGradient}
+                }
               }
-            }
-          }}
-        ],
-        axes: {
-          x: {type: 'time', line: {enabled: false}, label: {
-            color: '#828282', fontSize: 10, fontWeight: 300, avoidCollisions: true,
-            formatter: ({value}) => {
-              const day = value.getDay();
-              const dayNames = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-              return dayNames[day].substring(0,3);
-            }
-          },
-          min: weekStart, max: weekEnd},
-          y: {type: 'number', line: {enabled: false}, interval: {maxSpacing: 50},
-            position: 'left', gridLine: {style: [{stroke: '#E6E6E6', strokeWidth: 1}]},
-            label: {
+            }}
+          ],
+          axes: {
+            x: {type: 'time', line: {enabled: false}, label: {
+              color: '#828282', fontSize: 10, fontWeight: 300, avoidCollisions: true,
               formatter: ({value}) => {
-                return value >= 1000 ? (value / 1000).toString() + "K" : value;
+                const day = value.getDay();
+                const dayNames = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+                return dayNames[day].substring(0,3);
               }
             },
-            min: 0, max: maxValue
-          }
-        },
-        padding: {top: 10, bottom: 10, left: 15, right: 15},
-        background: {fill: '#FFFFFF'}        
-      });      
+            min: weekStart, max: weekEnd},
+            y: {type: 'number', line: {enabled: false}, interval: {maxSpacing: 50},
+              position: 'left', gridLine: {style: [{stroke: '#E6E6E6', strokeWidth: 1}]},
+              label: {
+                formatter: ({value}) => {
+                  if (category == "heartbeat") return Math.trunc(value).toString() + "BPM";
+                  else if (value >= 1_000_000) return Math.trunc(value / 1_000_000).toString() + "M";
+                  else if (value >= 1000) return Math.trunc(value / 1000).toString() + "K";
+                  else return Math.trunc(value).toString();
+                }
+              },
+              min: 0, max: maxValue
+            }
+          },
+          padding: {top: 10, bottom: 10, left: 15, right: 15},
+          background: {fill: '#FFFFFF'}        
+        });              
+      })
     }
 
 
@@ -284,80 +294,73 @@ function StatsPage({route}){
       const monthEnd = new Date(monthStart);
       monthEnd.setMonth(monthEnd.getMonth() + 1, -1);
 
-      const response = await fetch("http://localhost:8000/data/", {
+      const response = await fetch("http://localhost:8000/get_data/", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
           category: category,
-          start_date: monthStart.toISOString(),
-          end_date: monthEnd.toISOString()
+          min_date: monthStart.toISOString(),
+          max_date: monthEnd.toISOString(),
+          uid: auth.currentUser.uid,
+          group: "weekly",
+          mode: category != "heartrate" ? "sum" : "mean"
         })
-      }).then(res => res.json());
+      })
+      .then(res => res.json())
+      .then(res => res.map(x => {
+        return {data: x.data, time: new Date(x.time)};
+      }))
+      .then(res => {
+        let maxValue = Math.max(...res.map(x => x.data)) * 1.25;
 
-      function daysInMonth (month, year) {
-          return new Date(year, month, 0).getDate();
-      }
-
-
-      let monthlyData = [];
-      // fill monthly data with the number of days in that month
-      for (let i = 0; i < daysInMonth(monthStart.getMonth(), monthStart.getFullYear()); i++){
-        let day = new Date(monthStart);
-        day.setDate(day.getDate() + i);
-        if (day > Date.now()) break;
-        else monthlyData.push({data: 0, time: day});
-      }
-      response.forEach(async element => {
-        let formattedDate = new Date(element.time);
-        monthlyData[formattedDate.getDate()].data += element.data;
-      });
-      let maxValue = Math.ceil(Math.max(...monthlyData.map(x => x.data)) / 1000) * 1000 *1.5;
-
-
-      setMonthlyOptions({
-        title: {textAlign: 'left', fontSize: 14, fontWeight: 600, text: `${category.charAt(0).toUpperCase() + category.substring(1)} This Month`},
-        data: monthlyData,
-        series: [
-          {type: 'area', xKey: 'time', xName: 'Time', yKey: 'data', yName: `${category.charAt(0).toUpperCase() + category.substring(1)}`,
-          stroke: category == 'steps' ? stepsColors.stroke : category == 'distance_m' ? distanceColors.stroke
-          : category == 'calories' ? caloriesColors.stroke : category == 'heartrate' ? heartrateColors.stroke : stepsColors.stroke,
-          strokeWidth: 3, fill: category == 'steps' ? stepsColors.fill : category == 'distance_m' ? distanceColors.fill
-          : category == 'calories' ? caloriesColors.fill : category == 'heartrate' ? heartrateColors.fill : stepsColors.fill,
-          fillOpacity: 0.25,
-          marker: {
-            itemStyler: ({datum}) => {
-              const isLastElem = (datum == monthlyData[monthlyData.length-1]);
-              return {shape: 'circle', size: isLastElem ? 30 : 0,
-              fill: {type: 'gradient', colorStops: category == 'steps' ? stepsColors.markerGradient : category == 'distance_m' ? distanceColors.markerGradient
-          : category == 'calories' ? caloriesColors.markerGradient : category == 'heartrate' ? heartrateColors.markerGradient : stepsColors.markerGradient}
+        setMonthlyOptions({
+          title: {textAlign: 'left', fontSize: 14, fontWeight: 600, text: `${category.charAt(0).toUpperCase() + category.substring(1)} This Month`},
+          data: res,
+          series: [
+            {type: 'area', xKey: 'time', xName: 'Time', yKey: 'data', yName: `${category.charAt(0).toUpperCase() + category.substring(1)}`,
+            stroke: category == 'steps' ? stepsColors.stroke : category == 'distance_m' ? distanceColors.stroke
+            : category == 'calories' ? caloriesColors.stroke : category == 'heartrate' ? heartrateColors.stroke : stepsColors.stroke,
+            strokeWidth: 3, fill: category == 'steps' ? stepsColors.fill : category == 'distance_m' ? distanceColors.fill
+            : category == 'calories' ? caloriesColors.fill : category == 'heartrate' ? heartrateColors.fill : stepsColors.fill,
+            fillOpacity: 0.25,
+            marker: {
+              itemStyler: ({datum}) => {
+                const isLastElem = (datum == res[res.length-1]);
+                return {shape: 'circle', size: isLastElem ? 30 : 0,
+                fill: {type: 'gradient', colorStops: category == 'steps' ? stepsColors.markerGradient : category == 'distance_m' ? distanceColors.markerGradient
+            : category == 'calories' ? caloriesColors.markerGradient : category == 'heartrate' ? heartrateColors.markerGradient : stepsColors.markerGradient}
+                }
               }
-            }
-          }}
-        ],
-        axes: {
-          x: {type: 'time', line: {enabled: false}, label: {
-            color: '#828282', fontSize: 10, fontWeight: 300, avoidCollisions: true,
-            formatter: ({value}) => {
-              const date = value.getDate();
-              return date;
-            }
-          },
-          min: monthStart, max: monthEnd},
-          y: {type: 'number', line: {enabled: false}, interval: {maxSpacing: 50},
-            position: 'left', gridLine: {style: [{stroke: '#E6E6E6', strokeWidth: 1}]},
-            label: {
+            }}
+          ],
+          axes: {
+            x: {type: 'time', line: {enabled: false}, label: {
+              color: '#828282', fontSize: 10, fontWeight: 300, avoidCollisions: true,
               formatter: ({value}) => {
-                return value >= 1000 ? (value / 1000).toString() + "K" : value;
+                const date = value.getDate();
+                return date;
               }
             },
-            min: 0, max: maxValue
-          }
-        },
-        padding: {top: 10, bottom: 10, left: 15, right: 15},
-        background: {fill: '#FFFFFF'}        
-      });      
+            min: monthStart, max: monthEnd},
+            y: {type: 'number', line: {enabled: false}, interval: {maxSpacing: 50},
+              position: 'left', gridLine: {style: [{stroke: '#E6E6E6', strokeWidth: 1}]},
+              label: {
+                formatter: ({value}) => {
+                  if (category == "heartbeat") return Math.trunc(value).toString() + "BPM";
+                  else if (value >= 1_000_000) return Math.trunc(value / 1_000_000).toString() + "M";
+                  else if (value >= 1000) return Math.trunc(value / 1000).toString() + "K";
+                  else return Math.trunc(value).toString();
+                }
+              },
+              min: 0, max: maxValue
+            }
+          },
+          padding: {top: 10, bottom: 10, left: 15, right: 15},
+          background: {fill: '#FFFFFF'}        
+        });             
+      })
     }
 
     const fetchYearlyData = async () => {
@@ -367,81 +370,76 @@ function StatsPage({route}){
       const yearEnd = new Date(yearStart);
       yearEnd.setFullYear(yearEnd.getFullYear() + 1);
 
-      const response = await fetch("http://localhost:8000/data/", {
+      const response = await fetch("http://localhost:8000/get_data/", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
           category: category,
-          start_date: yearStart.toISOString(),
-          end_date: yearEnd.toISOString()
+          min_date: yearStart.toISOString(),
+          max_date: yearEnd.toISOString(),
+          uid: auth.currentUser.uid,
+          group: "yearly",
+          mode: category != "heartrate" ? "sum" : "mean"
         })
-      }).then(res => res.json());
+      })
+      .then(res => res.json())
+      .then(res => res.map(x => {
+        return {data: x.data, time: new Date(x.time)};
+      }))
+      .then(res => {
+        let maxValue = Math.max(...res.map(x => x.data)) * 1.25;
 
-      // group all data points into each month
-      // fill yearly data with 12 months at start then add to them
-      let yearlyData = [];
-      for (let i = 0; i < 12; i++){
-        let month = new Date(yearStart);
-        month.setMonth(month.getMonth() + i);
-        if (month > Date.now()) break;
-        else yearlyData.push({data: 0, time: month});
-      }
-      response.forEach(element => {
-        let formattedDate = new Date(element.time);
-        yearlyData[formattedDate.getMonth()].data += element.data;
-      });
-      // get max steps
-      yearlyData.unshift({data: 0, time: yearStart});
-      let maxValue = Math.ceil(Math.max(...yearlyData.map(x => x.data)) / 1000) * 1000 * 1.5;
-
-
-      setYearlyOptions({
-        title: {textAlign: 'left', fontSize: 14, fontWeight: 600, text: `${category.charAt(0).toUpperCase() + category.substring(1)} This Year`},
-        data: yearlyData,
-        series: [
-          {type: 'area', xKey: 'time', xName: 'Time', yKey: 'data', yName: `${category.charAt(0).toUpperCase() + category.substring(1)}`,
-          stroke: category == 'steps' ? stepsColors.stroke : category == 'distance_m' ? distanceColors.stroke
-          : category == 'calories' ? caloriesColors.stroke : category == 'heartrate' ? heartrateColors.stroke : stepsColors.stroke,
-          strokeWidth: 3, fill: category == 'steps' ? stepsColors.fill : category == 'distance_m' ? distanceColors.fill
-          : category == 'calories' ? caloriesColors.fill : category == 'heartrate' ? heartrateColors.fill : stepsColors.fill,
-          fillOpacity: 0.25,
-          marker: {
-            itemStyler: ({datum}) => {
-              const isLastElem = (datum == yearlyData[yearlyData.length-1]);
-              return {shape: 'circle', size: isLastElem ? 30 : 0,
-              fill: {type: 'gradient', colorStops: category == 'steps' ? stepsColors.markerGradient : category == 'distance_m' ? distanceColors.markerGradient
-          : category == 'calories' ? caloriesColors.markerGradient : category == 'heartrate' ? heartrateColors.markerGradient : stepsColors.markerGradient}
-              }
-            }
-          },
-        }],
-        axes: {
-          x: {type: 'time', line: {enabled: false}, label: {
-            color: '#828282', fontSize: 10, fontWeight: 300, avoidCollisions: true,
-            formatter: ({value}) => {
-              const monthNames = [
-              "January","February","March","April","May","June",
-              "July","August","September","October","November","December"
-              ];
-              return (monthNames[value.getMonth()]).toString().substring(0,3);
-            }
-          },
-          min: yearStart, max: yearEnd},
-          y: {type: 'number', line: {enabled: false}, interval: {maxSpacing: 50},
-            position: 'left', gridLine: {style: [{stroke: '#E6E6E6', strokeWidth: 1}]},
-            label: {
-              formatter: ({value}) => {
-                return value >= 1000 ? (value / 1000).toString() + "K" : value;
+        setYearlyOptions({
+          title: {textAlign: 'left', fontSize: 14, fontWeight: 600, text: `${category.charAt(0).toUpperCase() + category.substring(1)} This Year`},
+          data: res,
+          series: [
+            {type: 'area', xKey: 'time', xName: 'Time', yKey: 'data', yName: `${category.charAt(0).toUpperCase() + category.substring(1)}`,
+            stroke: category == 'steps' ? stepsColors.stroke : category == 'distance_m' ? distanceColors.stroke
+            : category == 'calories' ? caloriesColors.stroke : category == 'heartrate' ? heartrateColors.stroke : stepsColors.stroke,
+            strokeWidth: 3, fill: category == 'steps' ? stepsColors.fill : category == 'distance_m' ? distanceColors.fill
+            : category == 'calories' ? caloriesColors.fill : category == 'heartrate' ? heartrateColors.fill : stepsColors.fill,
+            fillOpacity: 0.25,
+            marker: {
+              itemStyler: ({datum}) => {
+                const isLastElem = (datum == res[res.length-1]);
+                return {shape: 'circle', size: isLastElem ? 30 : 0,
+                fill: {type: 'gradient', colorStops: category == 'steps' ? stepsColors.markerGradient : category == 'distance_m' ? distanceColors.markerGradient
+            : category == 'calories' ? caloriesColors.markerGradient : category == 'heartrate' ? heartrateColors.markerGradient : stepsColors.markerGradient}
+                }
               }
             },
-            min: 0, max: maxValue
-          }
-        },
-        padding: {top: 10, bottom: 10, left: 15, right: 15},
-        background: {fill: '#FFFFFF'}        
-      });      
+          }],
+          axes: {
+            x: {type: 'time', line: {enabled: false}, label: {
+              color: '#828282', fontSize: 10, fontWeight: 300, avoidCollisions: true,
+              formatter: ({value}) => {
+                const monthNames = [
+                "January","February","March","April","May","June",
+                "July","August","September","October","November","December"
+                ];
+                return (monthNames[value.getMonth()]).toString().substring(0,3);
+              }
+            },
+            min: yearStart, max: yearEnd},
+            y: {type: 'number', line: {enabled: false}, interval: {maxSpacing: 50},
+              position: 'left', gridLine: {style: [{stroke: '#E6E6E6', strokeWidth: 1}]},
+              label: {
+                formatter: ({value}) => {
+                  if (category == "heartbeat") return Math.trunc(value).toString() + "BPM";
+                  else if (value >= 1_000_000) return Math.trunc(value / 1_000_000).toString() + "M";
+                  else if (value >= 1000) return Math.trunc(value / 1000).toString() + "K";
+                  else return Math.trunc(value).toString();
+                }
+              },
+              min: 0, max: maxValue
+            }
+          },
+          padding: {top: 10, bottom: 10, left: 15, right: 15},
+          background: {fill: '#FFFFFF'}        
+        });              
+      })
     }
 
 
