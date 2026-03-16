@@ -23,6 +23,8 @@ function ProfilePage() {
 
         useEffect(() => {
 
+            document.head.getElementsByTagName("title")[0].innerText = "Heartbeat - Profile";
+
             const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
 
                 if(!currentUser){

@@ -36,6 +36,7 @@ function QRPage(){
         };
 
         checkAuth();       
+        document.head.getElementsByTagName("title")[0].innerText = "Heartbeat - User QR";
     }, []);
 
 

@@ -63,7 +63,9 @@ function HomePage(){
             }
         };
 
-        checkAuth();        
+        checkAuth();
+
+        document.head.getElementsByTagName("title")[0].innerText = "Heartbeat - Home";
     }, []);
 
 

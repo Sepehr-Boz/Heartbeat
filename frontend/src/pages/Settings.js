@@ -46,7 +46,8 @@ function SettingsPage() {
         }
     };
 
-    checkAuth();     
+    checkAuth();    
+    document.head.getElementsByTagName("title")[0].innerText = "Heartbeat - Settings"; 
 
     const loadUserData = async () => {
       if (!currentUser) {

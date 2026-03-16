@@ -89,6 +89,7 @@ function OtherUserStatsPage({route}){
     const location = useLocation();
     const category = location.state?.category;
     const uid = location.state?.uid;
+    const username = location.state?.uname;
 
     const [showDaily, setShowDaily] = useState(true);
     const [showWeekly, setShowWeekly] = useState(true);
@@ -465,6 +466,7 @@ function OtherUserStatsPage({route}){
       };
 
       checkAuth();     
+      document.head.getElementsByTagName("title")[0].innerText = username + " - " + category.charAt(0).toUpperCase() + category.substring(1);
 
       if (showDaily) fetchDailyData();
       if (showWeekly) fetchWeeklyData();
