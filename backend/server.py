@@ -82,8 +82,12 @@ class DataRequestParams(BaseModel):
     group: DataGrouping | None = None
     mode: DataGroupingMode | None = None
 
+
 # TODO: try and speed up this function by asyncing it/threading it with multiple random instances?
 # TODO: maybe use a random instance for every month?
+
+
+# TODO: add some variation based on the min and max values based on the user id seed?
 
 
 @app.post("/get_data/")
