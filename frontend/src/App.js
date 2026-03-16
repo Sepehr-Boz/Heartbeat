@@ -10,6 +10,8 @@ import ProfilePage from './pages/Profile';
 import SettingsPage from './pages/Settings';
 import StatsPage from './pages/StatsPage';
 import ScanQR from './pages/ScanQR';
+import ContactGP from './pages/ContactGP';
+import ConnectDevice from './pages/ConnectDevice';
 import { ToastContainer, toast } from 'react-toastify';
 import { DarkModeProvider } from './DarkModeContext';
 import OtherUserHomePage from './pages/OtherUserHomePage';
@@ -46,6 +48,8 @@ function App() {
           <Route path='/scan' element={<ScanQR/>}></Route>
           <Route path='/home' element={<HomePage/>}></Route>
           <Route path='/stats' element={<StatsPage/>}></Route>
+          <Route path='/contact-gp' element={<ContactGP/>}></Route>
+          <Route path='/connect-device' element={<ConnectDevice/>}></Route>
           <Route path='/other/home' element={<OtherUserHomePage/>}></Route>
           <Route path='/other/stats' element={<OtherUserStatsPage/>}></Route>
         </Routes>

@@ -3,6 +3,7 @@ import { useContext, useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { IsUserLoggedIn, IsAuthOutOfDate } from "../utls/UserChecks";
 
+import { onAuthStateChanged } from "firebase/auth";
 import { auth, db, storage } from "../config/firebase";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
@@ -16,35 +17,16 @@ import defaultProfilePic from "../components/images/default-profile-pic.png";
 function ProfilePage() {
         const navigate = useNavigate();
 
-        const [username, setUsername] = useState("Loading...");
-        const [profilePic, setProfilePic] = useState(defaultProfilePic);
+        const [username, setUsername] = useState(localStorage.getItem("username") || "Loading...");
+        const [profilePic, setProfilePic] = useState(localStorage.getItem("profilePic") || defaultProfilePic);
         const fileInputRef = useRef(null);
 
         useEffect(() => {
-            const checkAuth = async () => {
-                const loggedIn = await IsUserLoggedIn();
-                const outOfDate = await IsAuthOutOfDate();
 
-                if (!loggedIn){
+            const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+
+                if(!currentUser){
                     navigate("/login");
-                }
-                else if (outOfDate){
-                    await auth.signOut();
-                    navigate("/login");
-                }
-                else{
-                    auth.currentUser.reload();
-                }
-            };
-
-            checkAuth();      
-
-
-            const loadUserData = async () => {
-                const currentUser = auth.currentUser;
-
-                if(!currentUser) {
-                    setUsername("Username");
                     return;
                 }
 
@@ -54,16 +36,23 @@ function ProfilePage() {
 
                     if(userDoc.exists()) {
                         const userData = userDoc.data();
-                        setUsername(userData.username || "Username");
-                        setProfilePic(userData.profilePic || defaultProfilePic);
-                        
+                        const name = userData.username || "Username";
+                        const pic = userData.profilePic || defaultProfilePic
+                        setUsername(name);
+                        setProfilePic(pic);
+
+                        localStorage.setItem("username", name);
+                        localStorage.setItem("profilePic", pic);
                     }
-                } catch (error) {
-                    console.error("Error loading profile:" + error);
-                    setUsername("Username");
-                } 
-            };
-            loadUserData();
+
+                } catch(error){
+                    console.error("Error loading profile:", error);
+                }
+
+            });
+
+            return () => unsubscribe();
+
         }, []);
 
         // allow users to click profile pic to change image
@@ -89,6 +78,7 @@ function ProfilePage() {
                 await updateDoc(userDocRef, { profilePic: imageUrl });
 
                 setProfilePic(imageUrl);
+                localStorage.setItem("profilePic", imageUrl);
             } catch(error) {
                 console.error("Error changing profile pic:", error);
             }
@@ -116,7 +106,8 @@ function ProfilePage() {
             <div className="profile-options">
             <button className="option-button" onClick={() => navigate("/settings")}>Settings</button>
             <button className="option-button" onClick={() => navigate("/scan")}>Scan User Code</button>
-            <button className="option-button">Contact GP</button>
+            <button className="option-button" onClick={() => navigate("/connect-device")}>Connect Device</button>
+            <button className="option-button" onClick={() => navigate("/contact-gp")}>Contact GP</button>
             <button
                 className="option-button logout-button"
                 onClick={async () => {
