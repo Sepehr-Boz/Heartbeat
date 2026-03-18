@@ -6,8 +6,6 @@ from datetime import datetime
 # import datetime
 import csv
 
-#scheduler
-from apscheduler.schedulers.background import BackgroundScheduler
 
 
 
