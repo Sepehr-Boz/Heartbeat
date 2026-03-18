@@ -137,7 +137,7 @@ function StatsPage({route}){
         // Calculate total steps today
         let totalSteps = 0;
         if (data && data.length > 0) {
-          totalSteps = category == 'steps' ? data[0].data : 0;
+          totalSteps = data.reduce((sum, item) => sum + item.data, 0);
         }
 
         // Calculate time until midnight
@@ -151,7 +151,7 @@ function StatsPage({route}){
           if (totalSteps >= STEP_GOAL) {
             toast.success(
               <div>
-                <strong> Goal reached! good job queen</strong>
+                <strong> Goal reached! good job </strong>
                 <p style={{ margin: '5px 0 0 0' }}>
                   You've reached {Math.trunc(totalSteps).toLocaleString()} steps today!
                 </p>
@@ -166,7 +166,7 @@ function StatsPage({route}){
                     <div>
                       <strong>Step Goal Reminder</strong>
                       <p style={{ margin: '5px 0 0 0' }}>
-                      You need {(10000 - Math.trunc(stepsNeeded)).toLocaleString()} more steps to reach 10,000 before midnight!notification
+                      You need {Math.trunc(stepsNeeded).toLocaleString()} more steps to reach 10,000 before midnight
 
                       </p>
                       <p style={{ margin: '3px 0 0 0', fontSize: '12px', color: '#666' }}>
@@ -540,8 +540,16 @@ function StatsPage({route}){
           else if (!location.state.category){
             navigate("/home");
           }
+          
           else{
               auth.currentUser.reload();
+
+            if (category === 'steps') {
+              
+              checkStepGoal();
+              setStopDuplicateToasts(false);
+
+          }
           }
       };
 
@@ -552,7 +560,6 @@ function StatsPage({route}){
       if (showWeekly) fetchWeeklyData();
       if (showMonthly) fetchMonthlyData();
       if (showYearly) fetchYearlyData();
-      checkStepGoal();
 
     }, []);
 
