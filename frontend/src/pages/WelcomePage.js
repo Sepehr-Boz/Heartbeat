@@ -32,7 +32,10 @@ function WelcomePage(){
 
   return (
     <div className='welcome-page'>
+
       <h1 id="app-name">Heartbeat</h1>
+            <p></p>
+
       <h4 id="enter-text">Press anywhere to continue</h4>
       <div className="welcome-icons" onClick={() => navigate("/home")}/>
     </div>
