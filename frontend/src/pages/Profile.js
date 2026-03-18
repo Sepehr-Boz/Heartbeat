@@ -110,6 +110,10 @@ function ProfilePage() {
             <button className="option-button" onClick={() => navigate("/scan")}>Scan User Code</button>
             <button className="option-button" onClick={() => navigate("/connect-device")}>Connect Device</button>
             <button className="option-button" onClick={() => navigate("/contact-gp")}>Contact GP</button>
+            <button className="option-button" onClick={() => {
+                window.location.href = "https://www.instagram.com/heartbeat.official.official/";
+                return;
+            }}>View our Instagram!</button>
             <button
                 className="option-button logout-button"
                 onClick={async () => {
