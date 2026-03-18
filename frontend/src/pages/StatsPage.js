@@ -14,6 +14,7 @@ import {
 } from "ag-charts-community";
 import { IsUserLoggedIn, IsAuthOutOfDate } from "../utls/UserChecks";
 import { auth } from "../config/firebase";
+import { toast } from 'react-toastify';
 
 
 import "./css/StatsPage.css";
@@ -99,6 +100,87 @@ function StatsPage({route}){
     const [weeklyOptions, setWeeklyOptions] = useState({});
     const [monthlyOptions, setMonthlyOptions] = useState({});
     const [yearlyOptions, setYearlyOptions] = useState({});
+
+    const [stopduplicateToasts, setStopDuplicateToasts] = useState(true);
+
+
+
+
+// notificaiton system to alert user of how many steps they have taken today 
+    const checkStepGoal = async () => {
+      const STEP_GOAL = 10000;
+      const now = new Date();
+      const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      const todayEnd = new Date(todayStart);
+      todayEnd.setDate(todayEnd.getDate() + 1);
+
+      
+        // Fetch today's steps data
+        const response = await fetch("http://localhost:8000/get_data/", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          //bunch together data points for steps
+          body: JSON.stringify({
+            category: category,
+            min_date: todayStart.toISOString(),
+            max_date: todayEnd.toISOString(),
+            uid: auth.currentUser.uid,
+            group: "daily",
+            mode: "sum"
+          })
+        });
+
+        const data = await response.json();
+        
+        // Calculate total steps today
+        let totalSteps = 0;
+        if (data && data.length > 0) {
+          totalSteps = category == 'steps' ? data[0].data : 0;
+        }
+
+        // Calculate time until midnight
+        const midnight = new Date(todayEnd);
+        const hoursLeft = Math.floor((midnight - now) / (1000 * 60 * 60));
+        const minutesLeft = Math.floor(((midnight - now) % (1000 * 60 * 60)) / (1000 * 60));
+
+        // Show notification
+        if (stopduplicateToasts) {
+          setStopDuplicateToasts(false);
+          if (totalSteps >= STEP_GOAL) {
+            toast.success(
+              <div>
+                <strong> Goal reached! good job queen</strong>
+                <p style={{ margin: '5px 0 0 0' }}>
+                  You've reached {Math.trunc(totalSteps).toLocaleString()} steps today!
+                </p>
+              </div>,
+                    {
+                      autoClose: 5000,
+                    }
+                    );
+                } else {
+                  const stepsNeeded = STEP_GOAL - totalSteps;
+                  toast.warning(
+                    <div>
+                      <strong>Step Goal Reminder</strong>
+                      <p style={{ margin: '5px 0 0 0' }}>
+                      You need {(10000 - Math.trunc(stepsNeeded)).toLocaleString()} more steps to reach 10,000 before midnight!notification
+
+                      </p>
+                      <p style={{ margin: '3px 0 0 0', fontSize: '12px', color: '#666' }}>
+                        Time remaining: {hoursLeft}h {minutesLeft}m
+                      </p>
+                    </div>,
+                    {
+                      autoClose: 5000,
+                    }
+                  );
+                }
+            }
+      };
+
 
 
 
@@ -470,6 +552,8 @@ function StatsPage({route}){
       if (showWeekly) fetchWeeklyData();
       if (showMonthly) fetchMonthlyData();
       if (showYearly) fetchYearlyData();
+      checkStepGoal();
+
     }, []);
 
     return (
