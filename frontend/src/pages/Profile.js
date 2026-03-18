@@ -23,6 +23,8 @@ function ProfilePage() {
 
         useEffect(() => {
 
+            document.head.getElementsByTagName("title")[0].innerText = "Heartbeat - Profile";
+
             const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
 
                 if(!currentUser){
@@ -106,13 +108,16 @@ function ProfilePage() {
             <div className="profile-options">
             <button className="option-button" onClick={() => navigate("/settings")}>Settings</button>
             <button className="option-button" onClick={() => navigate("/scan")}>Scan User Code</button>
-            <button className="option-button">Contact GP</button>
+            <button className="option-button" onClick={() => navigate("/connect-device")}>Connect Device</button>
+            <button className="option-button" onClick={() => navigate("/contact-gp")}>Contact GP</button>
             <button
                 className="option-button logout-button"
                 onClick={async () => {
                 try {
                     // sign out from Firebase auth
                     await auth.signOut();
+                    localStorage.removeItem("username");
+                    localStorage.removeItem("profilePic");
                     // navigate to login page and replace history so user can't go back
                     navigate("/login", { replace: true });
                 } catch (error) {

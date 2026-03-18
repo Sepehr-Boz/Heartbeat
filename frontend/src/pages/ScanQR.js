@@ -29,6 +29,7 @@ function ScanQR() {
         };
 
         checkAuth();     
+        document.head.getElementsByTagName("title")[0].innerText = "Heartbeat - Scan QR";
 
         if(scannerRef.current) return;
         const scanner = new Html5Qrcode("reader");

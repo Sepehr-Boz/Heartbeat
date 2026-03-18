@@ -18,7 +18,7 @@ import './css/HomePage.css';
 
 
 
-function CategoryButton({text, category, icon, colour, uid}){
+function CategoryButton({text, category, icon, colour, uid, username}){
     // TODO: based on colour flip the colours of the icon so that the white lines become the colour and the inside/transparent area
     // TODO: becomes white
     let navigate = useNavigate();
@@ -27,7 +27,7 @@ function CategoryButton({text, category, icon, colour, uid}){
     return (
     <div className='category-button' style={{backgroundColor: colour}}
     onClick={() => {
-        navigate("/other/stats", {state:{category: category, uid: uid}});
+        navigate("/other/stats", {state:{category: category, uid: uid, uname: username}});
     }}
     >
         <img src={icon} className='category-button-icon' />
@@ -74,6 +74,7 @@ function OtherUserHomePage(){
         };
 
         checkAuth();
+        document.head.getElementsByTagName("title")[0].innerText = username + " - Home";
 
         const loadOtherUser = async () => {
             if(!otherUid) return;
@@ -107,16 +108,16 @@ function OtherUserHomePage(){
         <NavBar isHome={true} isQR={false} isProfile={false} />
         <div className='home-page-scrolldiv'>
             {trackSteps
-            ?<CategoryButton text={'Stepcount'} category={'steps'} icon={stepcountIcon} colour={'#2D6EFF'} uid={otherUid} />
+            ?<CategoryButton text={'Stepcount'} category={'steps'} icon={stepcountIcon} colour={'#2D6EFF'} uid={otherUid} username={username}/>
             : null}
             {trackHeartrate
-            ? <CategoryButton text={'Heartrate'} category={'heartrate'} icon={heartbeatIcon} colour={'#FF2D31'} uid={otherUid} />
+            ? <CategoryButton text={'Heartrate'} category={'heartrate'} icon={heartbeatIcon} colour={'#FF2D31'} uid={otherUid} username={username}/>
             : null}
             {trackCalories
-            ? <CategoryButton text={'Calories'} category={'calories'} icon={fireIcon} colour={'#FFCF22'} uid={otherUid} />
+            ? <CategoryButton text={'Calories'} category={'calories'} icon={fireIcon} colour={'#FFCF22'} uid={otherUid} username={username}/>
             : null}
             {trackDistance
-            ? <CategoryButton text={'Distance'} category={'distance_m'} icon={distanceIcon} colour={'#56FF22'} uid={otherUid} />
+            ? <CategoryButton text={'Distance'} category={'distance_m'} icon={distanceIcon} colour={'#56FF22'} uid={otherUid} username={username}/>
             : null}                                    
         </div>
     </div>

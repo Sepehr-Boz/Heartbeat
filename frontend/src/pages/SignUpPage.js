@@ -42,7 +42,8 @@ function SignUpPage() {
         }
     };
 
-    checkAuth();           
+    checkAuth();          
+    document.head.getElementsByTagName("title")[0].innerText = "Heartbeat - Sign Up"; 
 
   }, []);
 
