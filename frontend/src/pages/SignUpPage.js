@@ -64,7 +64,6 @@ function SignUpPage() {
     setSubmitted(true);
 
     if (!passwordsMatch) {
-      setMessage("Passwords do not match.");
       toast.error("Passwords do not match.");
       setLoading(false);
       return;
@@ -73,7 +72,6 @@ function SignUpPage() {
     }
 
     if (!isPasswordValid) {
-      setMessage("Password must be at least 8 characters.");
       toast.error("Password is too weak.");
 
       setLoading(false);
@@ -99,7 +97,7 @@ function SignUpPage() {
         }
       });
 
-
+      
 
       setSignedUpUser({ email: user.email, uid: user.uid });
       setMessage("Account created successfully! Please verify your email.");
