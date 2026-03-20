@@ -4,6 +4,8 @@ import { useNavigate } from "react-router-dom";
 import { createUserWithEmailAndPassword, sendEmailVerification } from "firebase/auth";
 
 
+import TitleBar from "../components/TitleBar.js";
+import Divider from "../components/Divider.js";
 
 import { db, auth } from "../config/firebase";
 import { doc, setDoc } from "firebase/firestore";
@@ -19,8 +21,14 @@ import { toast } from 'react-toastify';
 
 function SignUpPage() {
   const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [gpName, setGPName] = useState("");
+  const [trackSteps, setTrackSteps] = useState(true);
+  const [trackDistance, setTrackDistance] = useState(true);
+  const [trackCalories, setTrackCalories] = useState(true);
+  const [trackHeartRate, setTrackHeartrate] = useState(true);
   const [message, setMessage] = useState("");
   const [signedUpUser, setSignedUpUser] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -87,14 +95,16 @@ function SignUpPage() {
 
       // Aiden: added document creation - NEW
       await setDoc(doc(db, "users", user.uid), {
-        username: email.split("@")[0],
+        username: username,
         profilePic: defaultProfilePic,
         profile: {},
         preferences: {
           darkMode: false,
-          trackSteps: true,
-          trackHeartRate: true,
-          trackStairsClimbed: false
+          trackSteps: trackSteps,
+          trackHeartRate: trackHeartRate,
+          trackStairsClimbed: false,
+          trackDistance: trackDistance,
+          trackCalories: trackCalories,
         }
       });
 
@@ -107,8 +117,14 @@ function SignUpPage() {
       toast.success("Account created successfully");
       
       setEmail("");
+      setUsername("");
       setPassword("");
       setConfirmPassword("");
+      setGPName("");
+      setTrackSteps(false);
+      setTrackDistance(false);
+      setTrackCalories(false);
+      setTrackHeartrate(false);
 
       navigate("/home");
       
@@ -133,7 +149,7 @@ function SignUpPage() {
   };
 
   return (
-    <div className="App">
+    <>
       {header()}
       <main>
         {signedUpUser ? (
@@ -142,10 +158,22 @@ function SignUpPage() {
           <SignUpDetails
             email={email}
             setEmail={setEmail}
+            username={username}
+            setUsername={setUsername}
             password={password}
             setPassword={setPassword}
             confirmPassword={confirmPassword}
             setConfirmPassword={setConfirmPassword}
+            gpName={gpName}
+            setGPName={setGPName}
+            trackSteps={trackSteps}
+            setTrackSteps={setTrackSteps}
+            trackDistance={trackDistance}
+            setTrackDistance={setTrackDistance}
+            trackCalories={trackCalories}
+            setTrackCalories={setTrackCalories}
+            trackHeartRate={trackHeartRate}
+            setTrackHeartrate={setTrackHeartrate}
             message={message}
             handleSubmit={handleSubmit}
             passwordsMatch={passwordsMatch}
@@ -157,17 +185,29 @@ function SignUpPage() {
         )}
         <LogIn />
       </main>
-    </div>
+    </>
   );
 }
 
 function SignUpDetails({
   email,
   setEmail,
+  username,
+  setUsername,
   password,
   setPassword,
   confirmPassword,
   setConfirmPassword,
+  gpName,
+  setGPName,
+  trackSteps,
+  setTrackSteps,
+  trackDistance,
+  setTrackDistance,
+  trackCalories,
+  setTrackCalories,
+  trackHeartRate,
+  setTrackHeartrate,
   message,
   handleSubmit,
   passwordsMatch,
@@ -179,16 +219,24 @@ function SignUpDetails({
   return (
     <div className="sign-in">
       <form onSubmit={handleSubmit} className="login-form">
-        <h3>Sign-Up</h3>
-        <h3>Create new account</h3>
-        <p></p>
-        
+
         <input
           type="email"
           placeholder="Email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           className={email.length > 0 ? (isEmailValid ? "input-valid" : "input-invalid") : ""}
+          required
+        />
+
+        <Divider />
+
+        <input
+          type="text"
+          placeholder="Username"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+          className={username.length > 0 ? "input-valid" : "input-invalid"}
           required
         />
 
@@ -210,6 +258,66 @@ function SignUpDetails({
           required
         />
 
+        <Divider />
+
+        <input
+          type="text"
+          placeholder="GP Name"
+          value={gpName}
+          onChange={(e) => setGPName(e.target.value)}
+          className={"input-valid"}
+        />        
+
+        <Divider />
+
+        <div className="checkbox-input">
+        <input
+          type="checkbox"
+          id="track-steps"
+          name="track-steps"
+          value={trackSteps}
+          onChange={() => setTrackSteps(!trackSteps)}
+          checked={trackSteps}
+        />
+        <label for="track-steps">Track Stepcount</label>
+        </div>
+
+        <div className="checkbox-input">
+        <input
+          type="checkbox"
+          id="track-distance"
+          name="track-distance"
+          value={trackDistance}
+          onChange={() => setTrackDistance(!trackDistance)}
+          checked={trackDistance}
+        />
+        <label for="track-distance">Track Distance Walked</label>
+        </div>
+
+        <div className="checkbox-input">
+        <input
+          type="checkbox"
+          id="track-calories"
+          name="track-calories"
+          value={trackCalories}
+          onChange={() => setTrackCalories(!trackCalories)}
+          checked={trackCalories}
+        />
+        <label for="track-calories">Track Calories Burnt</label>
+        </div>
+
+        <div className="checkbox-input">
+        <input
+          type="checkbox"
+          id="track-heartrate"
+          name="track-heartrate"
+          value={trackHeartRate}
+          onChange={() => setTrackHeartrate(!trackHeartRate)}
+          className="checkbox-input"
+          checked={trackHeartRate}
+        />
+        <label for="track-heartrate">Track Heartrate</label>
+        </div>
 
 
         <button type="submit" disabled={(!passwordsMatch || loading) && submitted}>
@@ -250,20 +358,17 @@ function UserCard({ user, onBack }) {
 
 function header() {
   return (
-    <div className="app-header">
-      <h1>Heartbeat</h1>
-    </div>
+    <TitleBar enableBack={false} title={"Create New Account"} />
   );
 }
 
 function LogIn() {
+  const navigate = useNavigate();
+
   return (
-    <div className="login-form">
-      <h3>Click here to Log in</h3>
-      <a href="/login">
-        <button type="button">Log In</button>
-      </a>
-    </div>  
+    <>
+      <p style={{fontSize:'12px'}}>Already have an account? <a style={{fontWeight:"bold"}} onClick={() => navigate("/login")}>Login Here</a></p>
+    </>
   );
 }
 
