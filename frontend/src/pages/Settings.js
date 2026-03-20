@@ -136,7 +136,7 @@ function SettingsPage() {
           setMessage("Please log out and log back in to change password");
           break;
         case 'auth/weak-password':
-          setMessage("Password must be at least 6 characters");
+          setMessage("Password must be at least 8 characters");
           break;
         default:
           setMessage("Error saving settings: " + error.message);
