@@ -40,7 +40,6 @@ function CategoryButton({text, category, icon, colour, uid, username}){
 
 
 function OtherUserHomePage(){
-    // TODO: check which categories are tracked and render a button for each one
     const [trackSteps, setTrackSteps] = useState(true);
     const [trackHeartrate, setTrackHeartrate] = useState(true);
     const [trackCalories, setTrackCalories] = useState(true);
@@ -73,7 +72,22 @@ function OtherUserHomePage(){
             }
         };
 
+        const setTrackings = async () => {
+            const userDocRef = doc(db, "users", otherUid);
+            const userDoc = await getDoc(userDocRef);
+
+            if (userDoc.exists()){
+                const userData = userDoc.data();
+                setTrackSteps(userData.preferences.trackSteps);
+                setTrackDistance(userData.preferences.trackDistance);
+                setTrackCalories(userData.preferences.trackCalories);
+                setTrackHeartrate(userData.preferences.trackHeartRate);
+            }
+        }
+
         checkAuth();
+        setTrackings();
+
         document.head.getElementsByTagName("title")[0].innerText = username + " - Home";
 
         const loadOtherUser = async () => {

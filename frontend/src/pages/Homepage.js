@@ -4,7 +4,8 @@ import TitleBar from "../components/TitleBar";
 import NavBar from "../components/NavBar";
 import Divider from "../components/Divider";
 import { IsUserLoggedIn, IsAuthOutOfDate } from '../utls/UserChecks';
-import { auth } from '../config/firebase';
+import { db, auth } from '../config/firebase';
+import { doc, getDoc, updateDoc } from "firebase/firestore";
 
 import fireIcon from "./Fire.svg";
 import heartbeatIcon from "./Heartbeat.svg";
@@ -37,7 +38,6 @@ function CategoryButton({text, category, icon, colour}){
 
 
 function HomePage(){
-    // TODO: check which categories are tracked and render a button for each one
     const [trackSteps, setTrackSteps] = useState(true);
     const [trackHeartrate, setTrackHeartrate] = useState(true);
     const [trackCalories, setTrackCalories] = useState(true);
@@ -63,7 +63,21 @@ function HomePage(){
             }
         };
 
+        const setTrackings = async () => {
+            const userDocRef = doc(db, "users", auth.currentUser.uid);
+            const userDoc = await getDoc(userDocRef);
+
+            if (userDoc.exists()){
+                const userData = userDoc.data();
+                setTrackSteps(userData.preferences.trackSteps);
+                setTrackDistance(userData.preferences.trackDistance);
+                setTrackCalories(userData.preferences.trackCalories);
+                setTrackHeartrate(userData.preferences.trackHeartRate);
+            }
+        }
+
         checkAuth();
+        setTrackings();
 
         document.head.getElementsByTagName("title")[0].innerText = "Heartbeat - Home";
     }, []);

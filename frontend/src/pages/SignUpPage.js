@@ -97,7 +97,9 @@ function SignUpPage() {
       await setDoc(doc(db, "users", user.uid), {
         username: username,
         profilePic: defaultProfilePic,
-        profile: {},
+        profile: {
+          gpDoctor: gpName,
+        },
         preferences: {
           darkMode: false,
           trackSteps: trackSteps,
@@ -279,7 +281,7 @@ function SignUpDetails({
           onChange={() => setTrackSteps(!trackSteps)}
           checked={trackSteps}
         />
-        <label for="track-steps">Track Stepcount</label>
+        <label htmlFor="track-steps">Track Stepcount</label>
         </div>
 
         <div className="checkbox-input">
@@ -291,7 +293,7 @@ function SignUpDetails({
           onChange={() => setTrackDistance(!trackDistance)}
           checked={trackDistance}
         />
-        <label for="track-distance">Track Distance Walked</label>
+        <label htmlFor="track-distance">Track Distance Walked</label>
         </div>
 
         <div className="checkbox-input">
@@ -303,7 +305,7 @@ function SignUpDetails({
           onChange={() => setTrackCalories(!trackCalories)}
           checked={trackCalories}
         />
-        <label for="track-calories">Track Calories Burnt</label>
+        <label htmlFor="track-calories">Track Calories Burnt</label>
         </div>
 
         <div className="checkbox-input">
@@ -316,7 +318,7 @@ function SignUpDetails({
           className="checkbox-input"
           checked={trackHeartRate}
         />
-        <label for="track-heartrate">Track Heartrate</label>
+        <label htmlFor="track-heartrate">Track Heartrate</label>
         </div>
 
 

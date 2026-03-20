@@ -18,6 +18,8 @@ function SettingsPage() {
   const [trackSteps, setTrackSteps] = useState(true);
   const [trackHeartRate, setTrackHeartRate] = useState(true);
   const [trackStairsClimbed, setTrackStairsClimbed] = useState(false);
+  const [trackDistance, setTrackDistance] = useState(true);
+  const [trackCalories, setTrackCalories] = useState(true);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
@@ -69,6 +71,8 @@ function SettingsPage() {
           setTrackSteps(userData.preferences?.trackSteps ?? true);
           setTrackHeartRate(userData.preferences?.trackHeartRate ?? true);
           setTrackStairsClimbed(userData.preferences?.trackStairsClimbed ?? false);
+          setTrackDistance(userData.preferences?.trackDistance ?? true);
+          setTrackCalories(userData.preferences?.trackCalories ?? true);
         }
       } catch (error) {
         console.error("Error loading user data:", error);
@@ -108,6 +112,8 @@ function SettingsPage() {
         "preferences.trackSteps": trackSteps,
         "preferences.trackHeartRate": trackHeartRate,
         "preferences.trackStairsClimbed": trackStairsClimbed,
+        "preferences.trackDistance": trackDistance,
+        "preferences.trackCalories" : trackCalories,
         updatedAt: new Date().toISOString(),
       });
 
@@ -310,6 +316,27 @@ function SettingsPage() {
             />
             <label htmlFor="stairs">Measure Stairs Climbed</label>
           </div>
+
+          <div className="toggle">
+            <input 
+              type="checkbox" 
+              id="distance" 
+              checked={trackDistance}
+              onChange={(e) => setTrackDistance(e.target.checked)}
+            />
+            <label htmlFor="distance">Measure Distance Walked</label>
+          </div>
+
+          <div className="toggle">
+            <input 
+              type="checkbox" 
+              id="calories" 
+              checked={trackCalories}
+              onChange={(e) => setTrackCalories(e.target.checked)}
+            />
+            <label htmlFor="calories">Measure Calories Burnt</label>
+          </div>          
+
         </div>
 
         {message && (
