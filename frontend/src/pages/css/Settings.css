@@ -1,20 +1,25 @@
 .settings-page {
   min-height: 100vh;
-  padding: 1rem;
+  padding: 2rem 0;
   background: #f5f5f5;
   transition: background-color 0.3s ease;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
 }
 
 .settings-container {
-  width: 600px !important;
-  max-width: 1000px !important;
-  margin: 2rem auto;
-  padding: 2rem;
+  width: 45vw !important;
+  max-width: none !important;
+  margin: 0 auto;
+  padding: 3rem;
   background: #ffffff;
   border-radius: 10px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e5e7eb;
+  box-shadow: none;
   font-family: system-ui, sans-serif;
-  transition: background-color 0.3s ease, color 0.3s ease;
+  transition: background-color 0.3s ease, color 0.3s ease, width 0.3s ease;
 }
 
 .settings-container h2 {
@@ -181,6 +186,7 @@ body.dark-mode .settings-page {
 body.dark-mode .settings-container {
   background: #1e1e1e;
   color: #f5f5f5;
+  border-color: #333;
 }
 
 body.dark-mode .settings-container h2,
@@ -238,6 +244,7 @@ body.dark-mode .success-text {
 
 @media (max-width: 640px) {
   .settings-container {
+    width: 95vw !important;
     margin: 1rem auto;
     padding: 1.5rem;
   }
