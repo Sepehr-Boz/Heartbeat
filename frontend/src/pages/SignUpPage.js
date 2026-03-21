@@ -224,7 +224,7 @@ function SignUpDetails({
 
         <input
           type="email"
-          placeholder="Email"
+          placeholder="Email*"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           className={email.length > 0 ? (isEmailValid ? "input-valid" : "input-invalid") : ""}
@@ -235,7 +235,7 @@ function SignUpDetails({
 
         <input
           type="text"
-          placeholder="Username"
+          placeholder="Username*"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
           className={username.length > 0 ? "input-valid" : "input-invalid"}
@@ -244,7 +244,7 @@ function SignUpDetails({
 
         <input
           type="password"
-          placeholder="Password"
+          placeholder="Password*"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           className={password.length > 0 ? (isPasswordValid ? "input-valid" : "input-invalid") : ""}
@@ -253,7 +253,7 @@ function SignUpDetails({
 
         <input
           type="password"
-          placeholder="Confirm Password"
+          placeholder="Confirm Password*"
           value={confirmPassword}
           onChange={(e) => setConfirmPassword(e.target.value)}
           className={confirmPassword.length > 0 ? (passwordsMatch ? "match-valid" : "match-invalid") : ""}
