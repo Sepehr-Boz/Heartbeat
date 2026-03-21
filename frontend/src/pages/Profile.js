@@ -13,12 +13,12 @@ import TitleBar from "../components/TitleBar";
 import Divider from "../components/Divider";
 
 import defaultProfilePic from "../components/images/default-profile-pic.png";
-import contactGPIcon from "./ContactGP.svg";
-import gearIcon from "./Gear.svg";
-import scanIcon from "./ScanQR.svg";
-import watchIcon from "./Watch.svg";
-import instagramIcon from "./Instagram.svg";
-import logoutIcon from "./Logout.svg";
+import contactGPIcon from "./images/ContactGP.svg";
+import gearIcon from "./images/Gear.svg";
+import scanIcon from "./images/ScanQR.svg";
+import watchIcon from "./images/Watch.svg";
+import instagramIcon from "./images/Instagram.svg";
+import logoutIcon from "./images/Logout.svg";
 
 
 function OptionButton({icon, text, onClick}){

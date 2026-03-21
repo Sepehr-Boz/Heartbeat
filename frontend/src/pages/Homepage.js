@@ -7,10 +7,10 @@ import { IsUserLoggedIn, IsAuthOutOfDate } from '../utls/UserChecks';
 import { db, auth } from '../config/firebase';
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 
-import fireIcon from "./Fire.svg";
-import heartbeatIcon from "./Heartbeat.svg";
-import distanceIcon from "./LocationMarker.svg";
-import stepcountIcon from "./Shoe.svg";
+import fireIcon from "./images/Fire.svg";
+import heartbeatIcon from "./images/Heartbeat.svg";
+import distanceIcon from "./images/LocationMarker.svg";
+import stepcountIcon from "./images/Shoe.svg";
 
 
 import './css/HomePage.css';
