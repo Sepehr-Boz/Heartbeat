@@ -5,6 +5,10 @@ import {Html5Qrcode} from "html5-qrcode";
 import { IsUserLoggedIn, IsAuthOutOfDate } from "../utls/UserChecks";
 import { auth } from "../config/firebase";
 
+import TitleBar from "../components/TitleBar";
+import NavBar from "../components/NavBar";
+
+
 function ScanQR() {
     const scannerRef = useRef(null);
     const startedRef = useRef(false);
@@ -72,6 +76,9 @@ function ScanQR() {
             <div style={{marginTop: "100px", textAlign: "center"}}>
                 <h2>Scan User QR Code</h2>
                 <div id = "reader" style ={{width:"300px", margin: "auto"}}></div>
+
+                <TitleBar title={"Heartbeat"} enableBack={true} />
+                <NavBar isHome={false} isQR={false} isProfile={false} />
             </div>
         );
 }

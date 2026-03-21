@@ -1,6 +1,6 @@
 .titlebar{
     background-color: white;
-    width: 100%;
+    width: 100vw;
     height: fit-content;
     padding-top: 1vh;
     padding-bottom: 1vh;
@@ -12,6 +12,7 @@
     justify-items: center;
     position: absolute;
     top: 0px;
+    left: 0px;
 
     z-index: 10;
 }
