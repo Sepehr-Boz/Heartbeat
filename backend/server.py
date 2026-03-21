@@ -318,8 +318,8 @@ def get_data(req: DataRequestParams):
 # ! WHEN RUNNING DURING THE EXPO RUN USING UVICORN INSTEAD WITH A HARDCODED HOST IP
 # ! THEN IN THE FRONTEND HARDCODE THE IPS SO THAT THEY ALL DIRECT TO THIS INSTEAD OF LOCALHOST
 # ! BECAUSE NEED TO HOST THE SERVER OVER A NETWORK FOR THE EXPO
-# if __name__ == "__main__":
-#     uvicorn.run("server:app", host="0.0.0.0", port=8000, reload=True)
+if __name__ == "__main__":
+    uvicorn.run("server:app", host="0.0.0.0", port=8000, reload=True)
 
 
 # i am going to try do notifications for here on

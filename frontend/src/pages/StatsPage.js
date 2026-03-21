@@ -14,6 +14,7 @@ import {
 } from "ag-charts-community";
 import { IsUserLoggedIn, IsAuthOutOfDate } from "../utls/UserChecks";
 import { auth } from "../config/firebase";
+import { serverHost, reactHost } from "../config/network";
 import { toast } from 'react-toastify';
 
 
@@ -103,6 +104,8 @@ function StatsPage({route}){
 
     const [stopduplicateToasts, setStopDuplicateToasts] = useState(true);
 
+    console.log("http://" + serverHost + "/get_data/");
+
 
 
 
@@ -116,7 +119,7 @@ function StatsPage({route}){
 
       
         // Fetch today's steps data
-        const response = await fetch("http://localhost:8000/get_data/", {
+        const response = await fetch("http://" + serverHost + "/get_data/", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -190,7 +193,7 @@ function StatsPage({route}){
       dayStart.setHours(0, 0, 0, 0);
       const dayEnd = new Date();
   
-      const response = await fetch("http://localhost:8000/get_data/", {
+      const response = await fetch("http://" + serverHost + "/get_data/", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -282,7 +285,7 @@ function StatsPage({route}){
       const weekEnd = new Date(weekStart);
       weekEnd.setDate(weekStart.getDate() + 7);
 
-      const response = await fetch("http://localhost:8000/get_data/", {
+      const response = await fetch("http://" + serverHost + "/get_data/", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -376,7 +379,7 @@ function StatsPage({route}){
       const monthEnd = new Date(monthStart);
       monthEnd.setMonth(monthEnd.getMonth() + 1, -1);
 
-      const response = await fetch("http://localhost:8000/get_data/", {
+      const response = await fetch("http://" + serverHost + "/get_data/", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -452,7 +455,7 @@ function StatsPage({route}){
       const yearEnd = new Date(yearStart);
       yearEnd.setFullYear(yearEnd.getFullYear() + 1);
 
-      const response = await fetch("http://localhost:8000/get_data/", {
+      const response = await fetch("http://" + serverHost + "/get_data/", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
