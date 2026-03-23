@@ -104,8 +104,6 @@ function StatsPage({route}){
 
     const [stopduplicateToasts, setStopDuplicateToasts] = useState(true);
 
-    console.log("http://" + serverHost + "/get_data/");
-
 
 
 

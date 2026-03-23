@@ -22,7 +22,7 @@ function App() {
   const [userRemembered, setUserRemembered] = useState(false);
   
   //test notification function
-  const notify = () => toast("Wow so easy!");
+  // const notify = () => toast("Wow so easy!");
   
   useEffect(() => {
     if (!IsAuthOutOfDate() && IsUserLoggedIn()){

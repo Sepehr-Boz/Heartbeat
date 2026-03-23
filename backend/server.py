@@ -9,20 +9,6 @@ import csv
 import random
 from enum import Enum
 
-
-
-
-
-# TEST_DATA_PATH = "./test-data.csv"
-# STEP_INDEX = 9
-# METER_DISTANCE_INDEX = 11
-# CALORIES_INDEX = 12
-
-# TIME_INDEX = 4
-# TIMEZONE_INDEX = 13
-
-
-
 app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
@@ -36,16 +22,6 @@ app.add_middleware(
 @app.get("/")
 def read_root():
     return {"Hello": "World"}
-
-@app.get("/test")
-def test():
-    return "hello"
-
-@app.get("/items/{item_id}")
-def read_item(item_id: int, q: Union[str, None] = None):
-    return {"item_id": item_id, "q": q}
-
-
 
 def lerp(a: float, b: float, t: float):
     return a * (1.0 - t) + (b * t)
@@ -85,15 +61,8 @@ class DataRequestParams(BaseModel):
 # TODO: maybe use a random instance for every month?
 
 
-# TODO: add some variation based on the min and max values based on the user id seed?
-
-
 @app.post("/get_data/")
 def get_data(req: DataRequestParams):
-    print(req)
-    print(req.group)
-
-
     # check that the category is an accepted one
     if req.category not in ['steps', 'distance_m', 'calories', 'heartrate']: return
 
@@ -122,6 +91,17 @@ def get_data(req: DataRequestParams):
         }
     ]
 
+    min_val: int = (
+        STEPS_MIN if req.category == "steps"
+        else DISTANCE_MIN if req.category == "distance_m"
+        else CALORIES_MIN if req.category == "calories"
+        else HEARTRATE_MIN)
+    max_val: int = (
+        STEPS_MAX if req.category == "steps"
+        else DISTANCE_MAX if req.category == "distance_m"
+        else CALORIES_MAX if req.category == "calories"
+        else HEARTRATE_MAX)        
+
     # loop through all the dates form start_date to the clamped max_date generating new random data points in increments
     while True:
         data: dict = {
@@ -129,45 +109,16 @@ def get_data(req: DataRequestParams):
             'time': all_data[-1]['time'] + date_increment
         }
         data['data'] = generator.triangular(
-            low= (STEPS_MIN if req.category == "steps"
-            else DISTANCE_MIN if req.category == "distance_m"
-            else CALORIES_MIN if req.category == "calories"
-            else HEARTRATE_MIN)
-            + lerp(
-                (STEPS_MIN if req.category == "steps"
-                else DISTANCE_MIN if req.category == "distance_m"
-                else CALORIES_MIN if req.category == "calories"
-                else HEARTRATE_MIN),
-                (STEPS_MAX if req.category == "steps"
-                else DISTANCE_MAX if req.category == "distance_m"
-                else CALORIES_MAX if req.category == "calories"
-                else HEARTRATE_MAX),
-                (data['time'].hour if data['time'].hour <= 12 else 12 - (data['time'].hour - 12)) / 12),
+            low= min_val + lerp(min_val, max_val, (data['time'].hour if data['time'].hour <= 12 else 12 - (data['time'].hour - 12)) / 12),
 
-            high= (STEPS_MAX if req.category == "steps"
-            else DISTANCE_MAX if req.category == "distance_m"
-            else CALORIES_MAX if req.category == "calories"
-            else HEARTRATE_MAX)
-            * lerp(0, 1, (data['time'].hour if data['time'].hour <= 12 else 12 - (data['time'].hour - 12)) / 12),
+            high= max_val * lerp(0, 1, (data['time'].hour if data['time'].hour <= 12 else 12 - (data['time'].hour - 12)) / 12),
 
-            mode= lerp(
-                a= (STEPS_MAX if req.category == "steps"
-                else DISTANCE_MAX if req.category == "distance_m"
-                else CALORIES_MAX if req.category == "calories"
-                else HEARTRATE_MAX),
-
-                b= (STEPS_MAX if req.category == "steps"
-                else DISTANCE_MAX if req.category == "distance_m"
-                else CALORIES_MAX if req.category == "calories"
-                else HEARTRATE_MAX),
-
-                t= (data['time'].hour if data['time'].hour <= 12 else 12 - (data['time'].hour - 12)) / 12
-            )
+            mode= lerp(min_val, max_val , (data['time'].hour if data['time'].hour <= 12 else 12 - (data['time'].hour - 12)) / 12)
         )
         all_data.append(data)
 
         if check_against_min_date and data['time'] < req.min_date:
-            print("skipping", data)
+            # print("skipping", data)
             # pop to ensure that only 1 element is kept because we don't care about the elements before the clamped time
             all_data.pop(0)
             continue
@@ -279,50 +230,8 @@ def get_data(req: DataRequestParams):
         all_data.clear()
         yield grouped_data
 
-
-
-
-# class GetDataRequest(BaseModel):
-#     category: str
-#     start_date: datetime | None = None
-#     end_date: datetime | None = None
-
-# @app.post("/data/")
-# def get_data(req: GetDataRequest):
-#     # check that the category is an accepted one
-#     if req.category not in ['steps', 'distance_m', 'calories']: return
-
-#     data: dict = {'data': 0.0, 'time': None}
-#     with open(TEST_DATA_PATH, newline='') as file:
-#         reader = csv.reader(file, delimiter=',', quotechar='|')
-#         for row in reader:
-#             try:
-#                 data['time'] = datetime.fromisoformat(row[TIME_INDEX]).replace(tzinfo=req.start_date.tzinfo)
-#                 if data['time'] < req.start_date: continue
-#                 elif data['time'] > req.end_date: break
-
-#                 elif req.category == 'steps':
-#                     data['data'] = int(row[STEP_INDEX])
-#                 elif req.category == 'distance_m':
-#                     data['data'] = float(row[METER_DISTANCE_INDEX])
-#                 elif req.category == 'calories':
-#                     data['data'] = float(row[CALORIES_INDEX])
-
-#                 yield data
-#             except Exception as e:
-#                 print(e)
-#                 continue
-
-
-
 # ! WHEN RUNNING DURING THE EXPO RUN USING UVICORN INSTEAD WITH A HARDCODED HOST IP
 # ! THEN IN THE FRONTEND HARDCODE THE IPS SO THAT THEY ALL DIRECT TO THIS INSTEAD OF LOCALHOST
 # ! BECAUSE NEED TO HOST THE SERVER OVER A NETWORK FOR THE EXPO
 if __name__ == "__main__":
     uvicorn.run("server:app", host="0.0.0.0", port=8000, reload=True)
-
-
-# i am going to try do notifications for here on
-
-
-

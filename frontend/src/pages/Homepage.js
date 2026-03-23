@@ -38,10 +38,10 @@ function CategoryButton({text, category, icon, colour}){
 
 
 function HomePage(){
-    const [trackSteps, setTrackSteps] = useState(true);
-    const [trackHeartrate, setTrackHeartrate] = useState(true);
-    const [trackCalories, setTrackCalories] = useState(true);
-    const [trackDistance, setTrackDistance] = useState(true);
+    const [trackSteps, setTrackSteps] = useState(false);
+    const [trackHeartrate, setTrackHeartrate] = useState(false);
+    const [trackCalories, setTrackCalories] = useState(false);
+    const [trackDistance, setTrackDistance] = useState(false);
 
     const navigate = useNavigate();
 

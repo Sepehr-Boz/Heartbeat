@@ -40,10 +40,10 @@ function CategoryButton({text, category, icon, colour, uid, username}){
 
 
 function OtherUserHomePage(){
-    const [trackSteps, setTrackSteps] = useState(true);
-    const [trackHeartrate, setTrackHeartrate] = useState(true);
-    const [trackCalories, setTrackCalories] = useState(true);
-    const [trackDistance, setTrackDistance] = useState(true);
+    const [trackSteps, setTrackSteps] = useState(false);
+    const [trackHeartrate, setTrackHeartrate] = useState(false);
+    const [trackCalories, setTrackCalories] = useState(false);
+    const [trackDistance, setTrackDistance] = useState(false);
     const [username, setUsername] = useState("Loading...");
     const [profilePic, setProfilePic] = useState(null);
 
