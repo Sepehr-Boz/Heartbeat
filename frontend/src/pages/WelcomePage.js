@@ -36,7 +36,7 @@ function WelcomePage(){
       <h1 id="app-name">Heartbeat</h1>
             <p></p>
 
-      <h4 id="enter-text">Press anywhere to continue</h4>
+      <h1 id="enter-text"> Press anywhere to continue</h1>
       <div className="welcome-icons" onClick={() => navigate("/home")}/>
     </div>
   );
